@@ -16,32 +16,77 @@ Research-oriented assistant for generating, optimizing, explaining, and validati
 
 ```
 .
-├─ memory-bank/                  # Project memory (read first on each task)
-│  ├─ projectbrief.md            # Scope and goals
-│  ├─ productContext.md          # Why it exists, UX goals
-│  ├─ systemPatterns.md          # Architecture, patterns, decisions
-│  ├─ techContext.md             # Tech stack, setup, constraints
-│  ├─ activeContext.md           # Current focus and next steps
-│  └─ progress.md                # Status and known issues
-├─ docs/
-│  └─ Proposal/                  # Research proposal (LaTeX + PDF)
-├─ src/                          # Python source (to be implemented)
-│  ├─ rag/                       # Retrieval pipeline, embeddings, vector store
-│  ├─ agents/                    # Designer/Optimizer/Validator/Educational
-│  ├─ orchestration/             # Agent coordination, tools, workflows
-│  ├─ evaluation/                # Metrics, harness, datasets
-│  └─ cli/                       # CLI entry points
 ├─ data/                         # Local datasets/knowledge base (ignored)
+│  ├─ datasets/                  # Training and evaluation datasets
+│  ├─ knowledge_base/            # Curated Cirq code snippets
+│  └─ models/                    # Pre-trained models and embeddings
+├─ docs/                         # Project documentation
+│  ├─ agents/                    # Agent documentation
+│  │  ├─ designer.md             # Designer agent documentation
+│  │  └─ README.md               # Agent overview
+│  ├─ api/                       # API documentation
+│  │  └─ README.md               # API reference
+│  ├─ Proposal/                  # Research proposal (LaTeX + PDF)
+│  │  └─ LaTeX Files/            # LaTeX source files
+│  ├─ architecture.md            # System architecture
+│  ├─ installation.md            # Installation guide
+│  ├─ integration.md             # QCanvas integration guide
+│  ├─ overview.md                # Project overview
+│  ├─ quickstart.md              # Quick start guide
+│  ├─ README.md                  # Documentation index
+│  └─ tech-stack.md              # Technology stack
+├─ memory-bank/                  # Project memory (read first on each task)
+│  ├─ activeContext.md           # Current focus and next steps
+│  ├─ productContext.md          # Why it exists, UX goals
+│  ├─ progress.md                # Status and known issues
+│  ├─ projectbrief.md            # Scope and goals
+│  ├─ systemPatterns.md          # Architecture, patterns, decisions
+│  └─ techContext.md             # Tech stack, setup, constraints
 ├─ outputs/                      # Artifacts, logs, reports (ignored)
+│  ├─ artifacts/                 # Generated code and visualizations
+│  ├─ logs/                      # System and application logs
+│  └─ reports/                   # Evaluation reports and metrics
+├─ src/                          # Python source (to be implemented)
+│  ├─ agents/                    # Designer/Optimizer/Validator/Educational
+│  ├─ cirq_rag_code_assistant/   # Main package
+│  │  └─ config/                 # Configuration modules
+│  ├─ cli/                       # CLI entry points
+│  ├─ evaluation/                # Metrics, harness, datasets
+│  ├─ orchestration/             # Agent coordination, tools, workflows
+│  └─ rag/                       # Retrieval pipeline, embeddings, vector store
 ├─ tests/                        # Unit/integration tests
+│  ├─ e2e/                      # End-to-end tests
+│  ├─ integration/              # Integration tests
+│  └─ unit/                     # Unit tests
 ├─ .cursorrules                  # Project intelligence (living doc)
-├─ .gitignore
-├─ LICENSE
-└─ README.md
+├─ .gitignore                    # Git ignore patterns
+├─ .pre-commit-config.yaml       # Pre-commit hooks configuration
+├─ CHANGELOG.md                  # Project changelog
+├─ LICENSE                       # Academic Use License
+├─ Makefile                      # Development automation
+├─ README.md                     # This file
+├─ env.template                  # Environment variables template
+├─ pyproject.toml                # Modern Python packaging
+├─ requirements.txt              # Python dependencies
+├─ setup-dev.bat                 # Windows batch setup script
+├─ setup-dev.ps1                 # Windows PowerShell setup script
+├─ setup-dev.sh                  # Linux setup script
+└─ setup.py                      # Python package setup
 ```
 
 Create missing directories with:
 
+**Windows PowerShell:**
+```powershell
+New-Item -ItemType Directory -Path "src\rag", "src\agents", "src\orchestration", "src\evaluation", "src\cli", "tests", "data", "outputs" -Force
+```
+
+**Windows Command Prompt:**
+```cmd
+mkdir src\rag src\agents src\orchestration src\evaluation src\cli tests data outputs
+```
+
+**Linux/Unix:**
 ```bash
 mkdir -p src/{rag,agents,orchestration,evaluation,cli} tests data outputs
 ```
