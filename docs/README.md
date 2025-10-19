@@ -4,12 +4,19 @@ Welcome to the comprehensive documentation for the Cirq-RAG-Code-Assistant proje
 
 ## 📚 Documentation Structure
 
-### Folders
-- [**agents/**](agents/) - Agent documentation
-- [**api/**](api/) - API documentation
-- [**Proposal/**](Proposal/) - Research proposal and LaTeX files
+### 📁 Folders
 
-### Core Documentation Files
+- [**agents/**](agents/) - Agent documentation
+  - Multi-agent system architecture and individual agent specifications
+  
+- [**api/**](api/) - API documentation
+  - REST API reference and usage examples
+  
+- [**Proposal/**](Proposal/) - Research proposal and LaTeX files
+  - Academic research proposal and supporting materials
+
+### 📄 Core Documentation Files
+
 - [**Architecture Guide**](architecture.md) - System design and component relationships
 - [**Installation Guide**](installation.md) - Setup and installation instructions
 - [**QCanvas Integration Guide**](integration.md) - How to integrate with QCanvas quantum simulator (future enhancement)
@@ -19,10 +26,20 @@ Welcome to the comprehensive documentation for the Cirq-RAG-Code-Assistant proje
 
 ## 🚀 Quick Navigation
 
+### For New Users
 - **New to the project?** Start with [Project Overview](overview.md)
 - **Want to use the system?** Check [Quick Start](quickstart.md)
-- **Understanding the code?** Read [Architecture Guide](architecture.md)
 - **Setting up development?** See [Installation Guide](installation.md)
+
+### For Developers
+- **Understanding the code?** Read [Architecture Guide](architecture.md)
+- **Working with agents?** Explore [Agent Documentation](agents/README.md)
+- **API integration?** Check [API Reference](api/README.md)
+
+### For Researchers
+- **Research proposal?** See [Proposal Documentation](Proposal/Project%20Proposal.pdf)
+- **Technology details?** Review [Technology Stack](tech-stack.md)
+- **Future enhancements?** Read [QCanvas Integration](integration.md)
 
 ## 📖 Additional Resources
 
@@ -32,8 +49,10 @@ Welcome to the comprehensive documentation for the Cirq-RAG-Code-Assistant proje
 ## 🤝 Support
 
 For questions, issues, or contributions:
-- Open an issue on the project repository
-- Contact: umerfarooqcs0891@gmail.com
+
+- **GitHub Issues** - [Open an issue](https://github.com/Umer-Farooq-CS/Cirq-RAG-Code-Assistant/issues)
+- **Email Contact** - umerfarooqcs0891@gmail.com
+- **Documentation** - Browse the [docs/](.) directory for detailed guides
 
 ---
 
