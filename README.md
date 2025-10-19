@@ -1,6 +1,6 @@
 # Cirq-RAG-Code-Assistant
 
-Production-ready, research-oriented assistant for generating, optimizing, explaining, and validating Cirq quantum computing code using a hybrid RAG + Multi-Agent architecture with tool augmentation and agentic RL.
+Production-ready, research-oriented assistant for generating, optimizing, explaining, and validating Cirq quantum computing code using a hybrid RAG + Multi-Agent architecture with tool augmentation and Agentic RL.
 
 ## Highlights
 - RAG over a curated Cirq knowledge base
