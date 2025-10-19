@@ -8,3 +8,7 @@ Core goals:
 - Optimize circuits (depth, two-qubit gates) via agentic RL/tooling
 - Validate via simulation and tests
 - Establish datasets, metrics, and benchmarks
+- Leverage TensorFlow GPU for performance optimization
+
+Future enhancement (post-project):
+- QCanvas integration for real-time circuit visualization and execution
