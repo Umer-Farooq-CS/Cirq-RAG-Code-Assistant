@@ -10,7 +10,7 @@ Experience:
 - Ask in natural language; receive Cirq code with explanations
 - Optional optimization and validation
 - Templates for VQE, QAOA, teleportation, Grover, QFT
-- GPU-accelerated processing with TensorFlow
+- GPU-accelerated processing with PyTorch CUDA
 
 Future enhancement (post-project):
 - QCanvas users integrating with existing quantum simulator
