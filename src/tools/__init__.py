@@ -9,13 +9,13 @@ Email: umerfarooqcs0891@gmail.com
 """
 
 # This file will export tool classes
-# from .compiler import CirqCompiler
-# from .simulator import QuantumSimulator
-# from .analyzer import CircuitAnalyzer
+from .compiler import CirqCompiler
+from .simulator import QuantumSimulator
+from .analyzer import CircuitAnalyzer
 
 __all__ = [
-    # "CirqCompiler",
-    # "QuantumSimulator",
-    # "CircuitAnalyzer",
+    "CirqCompiler",
+    "QuantumSimulator",
+    "CircuitAnalyzer",
 ]
 
