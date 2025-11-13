@@ -31,7 +31,7 @@ setup(
     version="0.1.0",
     author="Umer Farooq, Hussain Waseem Syed, Muhammad Irtaza Khan",
     author_email="umerfarooqcs0891@gmail.com",
-    description="A research-grade system for generating and explaining Cirq quantum computing code using RAG and multi-agent architecture with TensorFlow GPU optimization",
+    description="A research-grade system for generating and explaining Cirq quantum computing code using RAG and multi-agent architecture with PyTorch CUDA optimization",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/umerfarooq/cirq-rag-code-assistant",

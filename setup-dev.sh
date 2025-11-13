@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Cirq-RAG-Code-Assistant Development Environment Setup Script
-# For Linux Ubuntu with TensorFlow GPU support
+# For Linux Ubuntu with PyTorch CUDA support
 
 set -e  # Exit on any error
 
@@ -55,7 +55,7 @@ if command -v nvidia-smi &> /dev/null; then
     print_success "NVIDIA GPU detected:"
     nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader,nounits
 else
-    print_warning "NVIDIA GPU not detected. TensorFlow will run on CPU."
+    print_warning "NVIDIA GPU not detected. PyTorch will run on CPU."
 fi
 
 # Create virtual environment
@@ -109,9 +109,12 @@ DATABASE_URL=sqlite:///data/cirq_rag.db
 LOG_LEVEL=INFO
 LOG_FILE=outputs/logs/cirq_rag.log
 
-# TensorFlow Configuration
-TF_CPP_MIN_LOG_LEVEL=1
+# PyTorch Configuration
 CUDA_VISIBLE_DEVICES=0
+TORCH_DEVICE=auto
+TORCH_DETERMINISTIC=false
+TORCH_BENCHMARK=true
+TORCH_MEMORY_FRACTION=0.8
 
 # Development Settings
 DEBUG=True
@@ -135,16 +138,16 @@ else
     print_warning ".env file already exists"
 fi
 
-# Test TensorFlow GPU installation
-print_status "Testing TensorFlow GPU installation..."
+# Test PyTorch CUDA installation
+print_status "Testing PyTorch CUDA installation..."
 python3 -c "
-import tensorflow as tf
-print(f'TensorFlow version: {tf.__version__}')
-print(f'GPU available: {tf.config.list_physical_devices(\"GPU\")}')
-if tf.config.list_physical_devices('GPU'):
-    print('✅ TensorFlow GPU support is working!')
+import torch
+print(f'PyTorch version: {torch.__version__}')
+print(f'CUDA available: {torch.cuda.is_available()}')
+if torch.cuda.is_available():
+    print(f'✅ CUDA device: {torch.cuda.get_device_name(0)}')
 else:
-    print('⚠️  TensorFlow GPU support not available - will use CPU')
+    print('⚠️  CUDA device not available - running on CPU')
 "
 
 # Run initial tests
@@ -173,19 +176,17 @@ def test_python_version():
 def test_imports():
     """Test that basic imports work."""
     try:
-        import tensorflow as tf
+        import torch
         import cirq
         import numpy as np
         assert True
     except ImportError as e:
         pytest.fail(f"Failed to import required packages: {e}")
 
-def test_tensorflow_gpu():
-    """Test TensorFlow GPU availability."""
-    import tensorflow as tf
-    gpus = tf.config.list_physical_devices('GPU')
-    # This test passes whether GPU is available or not
-    assert isinstance(gpus, list)
+def test_pytorch_cuda():
+    """Test PyTorch CUDA availability."""
+    import torch
+    assert isinstance(torch.cuda.is_available(), bool)
 
 if __name__ == "__main__":
     pytest.main([__file__])

@@ -1,5 +1,5 @@
 # Cirq-RAG-Code-Assistant Development Environment Setup Script
-# For Windows with TensorFlow GPU support
+# For Windows with PyTorch CUDA support
 
 param(
     [string]$PythonVersion = "3.11",
@@ -66,10 +66,10 @@ if (-not $SkipGPUCheck) {
             Write-Success "NVIDIA GPU detected:"
             nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader,nounits
         } else {
-            Write-Warning "NVIDIA GPU not detected. TensorFlow will run on CPU."
+            Write-Warning "NVIDIA GPU not detected. PyTorch will run on CPU."
         }
     } catch {
-        Write-Warning "Could not check for NVIDIA GPU. TensorFlow will run on CPU."
+        Write-Warning "Could not check for NVIDIA GPU. PyTorch will run on CPU."
     }
 }
 
@@ -147,19 +147,19 @@ DATABASE_URL=sqlite:///data/cirq_rag.db
     Write-Warning ".env file already exists"
 }
 
-# Test TensorFlow GPU installation
-Write-Status "Testing TensorFlow GPU installation..."
-$tensorflowTest = @"
-import tensorflow as tf
-print(f'TensorFlow version: {tf.__version__}')
-print(f'GPU available: {tf.config.list_physical_devices("GPU")}')
-if tf.config.list_physical_devices('GPU'):
-    print('✅ TensorFlow GPU support is working!')
+# Test PyTorch CUDA installation
+Write-Status "Testing PyTorch CUDA installation..."
+$pytorchTest = @"
+import torch
+print(f'PyTorch version: {torch.__version__}')
+print(f'CUDA available: {torch.cuda.is_available()}')
+if torch.cuda.is_available():
+    print(f'✅ CUDA device: {torch.cuda.get_device_name(0)}')
 else:
-    print('⚠️  TensorFlow GPU support not available - will use CPU')
+    print('⚠️  CUDA device not available - running on CPU')
 "@
 
-$tensorflowTest | python
+$pytorchTest | python
 
 # Create basic test file if it doesn't exist
 if (-not (Test-Path "tests\unit\test_basic.py")) {
@@ -186,19 +186,18 @@ class TestBasicFunctionality:
     def test_imports(self):
         """Test that basic imports work."""
         try:
-            import tensorflow as tf
+            import torch
             import cirq
             import numpy as np
             assert True
         except ImportError as e:
             pytest.fail(f"Failed to import required packages: {e}")
 
-    def test_tensorflow_gpu(self):
-        """Test TensorFlow GPU availability."""
-        import tensorflow as tf
-        gpus = tf.config.list_physical_devices('GPU')
-        # This test passes whether GPU is available or not
-        assert isinstance(gpus, list)
+    def test_pytorch_cuda(self):
+        """Test PyTorch CUDA availability."""
+        import torch
+        # This test passes whether CUDA is available or not
+        assert isinstance(torch.cuda.is_available(), bool)
 
     def test_cirq_basic(self):
         """Test basic Cirq functionality."""
@@ -224,20 +223,18 @@ class TestBasicFunctionality:
         assert arr.mean() == 2.5
 
     @pytest.mark.gpu
-    def test_tensorflow_gpu_operations(self):
-        """Test TensorFlow GPU operations if available."""
-        import tensorflow as tf
+    def test_pytorch_cuda_operations(self):
+        """Test PyTorch CUDA operations if available."""
+        import torch
         
-        gpus = tf.config.list_physical_devices('GPU')
-        if gpus:
-            # Test basic GPU operation
-            with tf.device('/GPU:0'):
-                a = tf.constant([1.0, 2.0, 3.0])
-                b = tf.constant([4.0, 5.0, 6.0])
-                c = tf.add(a, b)
-                assert tf.reduce_sum(c).numpy() == 21.0
+        if torch.cuda.is_available():
+            device = torch.device('cuda:0')
+            a = torch.tensor([1.0, 2.0, 3.0], device=device)
+            b = torch.tensor([4.0, 5.0, 6.0], device=device)
+            c = a + b
+            assert torch.sum(c).item() == 21.0
         else:
-            pytest.skip("GPU not available")
+            pytest.skip("CUDA device not available")
 
     def test_project_structure(self):
         """Test that project structure is correct."""

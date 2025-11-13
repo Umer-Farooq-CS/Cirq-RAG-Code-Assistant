@@ -184,7 +184,7 @@ faiss_index/
 chroma_db/
 *.index
 
-# TensorFlow
+# Deep learning checkpoints (Pytorch, etc.)
 *.ckpt
 *.meta
 *.index

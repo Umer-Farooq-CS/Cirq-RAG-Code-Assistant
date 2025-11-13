@@ -8,8 +8,8 @@ cirq>=1.2.0
 # =====================
 transformers>=4.35.0
 sentence-transformers>=2.2.2
-tensorflow>=2.13.0
-tensorflow-gpu>=2.13.0
+torch>=2.1.0
+torchvision>=0.16.0
 numpy>=1.24.0
 scipy>=1.11.0
 
@@ -116,10 +116,11 @@ qiskit>=0.45.0  # For comparison and interoperability
 pennylane>=0.34.0  # For quantum machine learning
 qutip>=4.7.0  # For quantum simulations
 
-# GPU Dependencies (TensorFlow-based)
+# GPU Dependencies (PyTorch-based)
 # ===================================
-# tensorflow-gpu>=2.13.0  # Already included above
-# cupy>=12.0.0  # For GPU array operations with TensorFlow
+# PyTorch automatically uses CUDA if available
+# Install PyTorch with CUDA: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+# cupy>=12.0.0  # Optional: For GPU array operations (if needed)
 
 # Development Dependencies
 # ========================
@@ -136,6 +137,7 @@ qutip>=4.7.0  # For quantum simulations
 # transformers==4.35.0
 # fastapi==0.104.0
 # torch==2.1.0
+# sentence-transformers==2.2.2
 
 # Platform-Specific Dependencies (Linux Ubuntu)
 # ============================================

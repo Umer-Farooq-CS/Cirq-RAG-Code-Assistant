@@ -1,6 +1,6 @@
 @echo off
 REM Cirq-RAG-Code-Assistant Development Environment Setup Script
-REM For Windows with TensorFlow GPU support
+REM For Windows with PyTorch CUDA support
 
 echo 🚀 Setting up Cirq-RAG-Code-Assistant development environment...
 
@@ -67,9 +67,9 @@ if not exist ".env" (
     echo [WARNING] .env file already exists
 )
 
-REM Test TensorFlow GPU installation
-echo [INFO] Testing TensorFlow GPU installation...
-python -c "import tensorflow as tf; print(f'TensorFlow version: {tf.__version__}'); print(f'GPU available: {tf.config.list_physical_devices(\"GPU\")}'); print('✅ TensorFlow GPU support is working!' if tf.config.list_physical_devices('GPU') else '⚠️  TensorFlow GPU support not available - will use CPU')"
+REM Test PyTorch CUDA installation
+echo [INFO] Testing PyTorch CUDA installation...
+python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA device: {torch.cuda.get_device_name(0)}' if torch.cuda.is_available() else '⚠️  CUDA device not available - running on CPU')"
 
 REM Run basic tests
 echo [INFO] Running basic tests...

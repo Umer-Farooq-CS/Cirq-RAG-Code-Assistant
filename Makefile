@@ -246,7 +246,7 @@ help-install: ## Show installation help
 	@echo "Installation Options:"
 	@echo "  make install        - Basic installation"
 	@echo "  make install-dev    - Development installation with all tools"
-	@echo "  make install-gpu    - With TensorFlow GPU support"
+	@echo "  make install-gpu    - With PyTorch CUDA support"
 	@echo "  make install-quantum - With quantum computing extensions"
 	@echo "  make install-qcanvas - With QCanvas integration support (future enhancement)"
 
