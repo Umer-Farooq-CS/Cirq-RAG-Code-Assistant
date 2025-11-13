@@ -10,17 +10,17 @@ Email: umerfarooqcs0891@gmail.com
 """
 
 # This file will export all agent classes
-# from .base_agent import BaseAgent
-# from .designer import DesignerAgent
-# from .optimizer import OptimizerAgent
-# from .validator import ValidatorAgent
-# from .educational import EducationalAgent
+from .base_agent import BaseAgent
+from .designer import DesignerAgent
+from .optimizer import OptimizerAgent
+from .validator import ValidatorAgent
+from .educational import EducationalAgent
 
 __all__ = [
-    # "BaseAgent",
-    # "DesignerAgent",
-    # "OptimizerAgent",
-    # "ValidatorAgent",
-    # "EducationalAgent",
+    "BaseAgent",
+    "DesignerAgent",
+    "OptimizerAgent",
+    "ValidatorAgent",
+    "EducationalAgent",
 ]
 
