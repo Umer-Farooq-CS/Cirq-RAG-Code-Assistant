@@ -19,19 +19,17 @@ class TestBasicFunctionality:
     def test_imports(self):
         """Test that basic imports work."""
         try:
-            import tensorflow as tf
+            import torch
             import cirq
             import numpy as np
-            assert True
         except ImportError as e:
             pytest.fail(f"Failed to import required packages: {e}")
 
-    def test_tensorflow_gpu(self):
-        """Test TensorFlow GPU availability."""
-        import tensorflow as tf
-        gpus = tf.config.list_physical_devices('GPU')
-        # This test passes whether GPU is available or not
-        assert isinstance(gpus, list)
+    def test_pytorch_cuda(self):
+        """Test PyTorch CUDA availability."""
+        import torch
+        # This test passes whether CUDA is available or not
+        assert isinstance(torch.cuda.is_available(), bool)
 
     def test_cirq_basic(self):
         """Test basic Cirq functionality."""
@@ -54,23 +52,21 @@ class TestBasicFunctionality:
         # Test basic operations
         arr = np.array([1, 2, 3, 4])
         assert arr.sum() == 10
-        assert arr.mean() == 2.5
+        assert arr.mean() == pytest.approx(2.5)
 
     @pytest.mark.gpu
-    def test_tensorflow_gpu_operations(self):
-        """Test TensorFlow GPU operations if available."""
-        import tensorflow as tf
-        
-        gpus = tf.config.list_physical_devices('GPU')
-        if gpus:
-            # Test basic GPU operation
-            with tf.device('/GPU:0'):
-                a = tf.constant([1.0, 2.0, 3.0])
-                b = tf.constant([4.0, 5.0, 6.0])
-                c = tf.add(a, b)
-                assert tf.reduce_sum(c).numpy() == 21.0
+    def test_pytorch_cuda_operations(self):
+        """Test PyTorch CUDA operations if available."""
+        import torch
+
+        if torch.cuda.is_available():
+            device = torch.device("cuda:0")
+            a = torch.tensor([1.0, 2.0, 3.0], device=device)
+            b = torch.tensor([4.0, 5.0, 6.0], device=device)
+            c = a + b
+            assert torch.sum(c).item() == pytest.approx(21.0)
         else:
-            pytest.skip("GPU not available")
+            pytest.skip("CUDA device not available")
 
     def test_project_structure(self, project_root):
         """Test that project structure is correct."""
