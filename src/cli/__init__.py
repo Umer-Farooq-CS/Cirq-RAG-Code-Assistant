@@ -9,11 +9,11 @@ Email: umerfarooqcs0891@gmail.com
 """
 
 # This file will export CLI components
-# from .main import main, cli
-# from .commands import generate, optimize, validate, explain
+from .main import main, cli
+from .commands import *
 
 __all__ = [
-    # "main",
-    # "cli",
+    "main",
+    "cli",
 ]
 

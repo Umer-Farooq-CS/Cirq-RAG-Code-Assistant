@@ -1,44 +1,80 @@
 """
 CLI Main Module
 
-This module implements the main CLI entry point and command
-dispatching for the Cirq-RAG-Code-Assistant.
-
-Author: Umer Farooq, Hussain Waseem Syed, Muhammad Irtaza Khan
-Email: umerfarooqcs0891@gmail.com
-
-Purpose:
-    - Provide command-line interface
-    - Parse command-line arguments
-    - Dispatch commands to appropriate handlers
-    - Handle user interaction
-    - Format output for terminal
-
-Input:
-    - Command-line arguments
-    - User input (in interactive mode)
-    - Configuration files
-
-Output:
-    - Formatted terminal output
-    - Generated files (if requested)
-    - Status messages
-    - Error messages
-
-Dependencies:
-    - Click or argparse: For CLI framework
-    - Orchestrator: For system operations
-    - Configuration: For settings
-
-Links to other modules:
-    - Uses: Orchestrator, all agents
-    - Entry point: Main CLI application
+This module implements the main CLI entry point.
 """
 
-# This file will contain:
-# - CLI main entry point
-# - Command parsing and dispatching
-# - Interactive mode
-# - Output formatting
-# - Error handling
+import click
+from pathlib import Path
+from .commands import (
+    generate_command,
+    optimize_command,
+    validate_command,
+    explain_command,
+    benchmark_command,
+)
+from ..cirq_rag_code_assistant.config.logging import setup_default_logging
 
+# Setup logging
+setup_default_logging()
+
+
+@click.group()
+@click.version_option(version="0.1.0")
+def cli():
+    """Cirq-RAG-Code-Assistant CLI."""
+    pass
+
+
+@cli.command()
+@click.argument("query")
+@click.option("--algorithm", help="Algorithm type (vqe, qaoa, grover, etc.)")
+@click.option("--optimize/--no-optimize", default=True, help="Optimize generated code")
+@click.option("--validate/--no-validate", default=True, help="Validate generated code")
+@click.option("--explain/--no-explain", default=True, help="Generate explanations")
+@click.option("--output", type=click.Path(), help="Output file path")
+def generate(query, algorithm, optimize, validate, explain, output):
+    """Generate Cirq code from natural language query."""
+    generate_command(query, algorithm, optimize, validate, explain, output)
+
+
+@cli.command()
+@click.argument("code_file", type=click.Path(exists=True))
+@click.option("--level", default="balanced", help="Optimization level (conservative, balanced, aggressive)")
+@click.option("--output", type=click.Path(), help="Output file path")
+def optimize(code_file, level, output):
+    """Optimize a Cirq circuit."""
+    optimize_command(code_file, level, output)
+
+
+@cli.command()
+@click.argument("code_file", type=click.Path(exists=True))
+@click.option("--level", default="comprehensive", help="Validation level (basic, comprehensive)")
+def validate(code_file, level):
+    """Validate Cirq code."""
+    validate_command(code_file, level)
+
+
+@cli.command()
+@click.argument("code_file", type=click.Path(exists=True))
+@click.option("--depth", default="intermediate", help="Explanation depth (beginner, intermediate, advanced)")
+@click.option("--algorithm", help="Algorithm type")
+def explain(code_file, depth, algorithm):
+    """Generate educational explanations for code."""
+    explain_command(code_file, depth, algorithm)
+
+
+@cli.command()
+@click.option("--output", type=click.Path(), help="Output report file path")
+def benchmark(output):
+    """Run benchmark tests."""
+    benchmark_command(output)
+
+
+def main():
+    """Main CLI entry point."""
+    cli()
+
+
+if __name__ == "__main__":
+    main()
