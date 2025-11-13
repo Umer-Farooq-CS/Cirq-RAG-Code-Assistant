@@ -9,13 +9,13 @@ Email: umerfarooqcs0891@gmail.com
 """
 
 # This file will export evaluation components
-# from .metrics import MetricsCollector
-# from .benchmark import BenchmarkSuite
-# from .reports import ReportGenerator
+from .metrics import MetricsCollector
+from .benchmark import BenchmarkSuite
+from .reports import ReportGenerator
 
 __all__ = [
-    # "MetricsCollector",
-    # "BenchmarkSuite",
-    # "ReportGenerator",
+    "MetricsCollector",
+    "BenchmarkSuite",
+    "ReportGenerator",
 ]
 
