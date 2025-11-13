@@ -34,11 +34,12 @@ class Settings(PydanticBaseSettings):
     max_log_file_size: str = Field(default="10MB", env="MAX_LOG_FILE_SIZE")
     log_backup_count: int = Field(default=5, env="LOG_BACKUP_COUNT")
     
-    # TensorFlow
-    tf_cpp_min_log_level: int = Field(default=1, env="TF_CPP_MIN_LOG_LEVEL")
+    # PyTorch
     cuda_visible_devices: str = Field(default="0", env="CUDA_VISIBLE_DEVICES")
-    tf_force_gpu_allow_growth: bool = Field(default=True, env="TF_FORCE_GPU_ALLOW_GROWTH")
-    tf_gpu_memory_allocation: float = Field(default=0.8, env="TF_GPU_MEMORY_ALLOCATION")
+    torch_device: str = Field(default="auto", env="TORCH_DEVICE")  # auto, cpu, cuda, cuda:0
+    torch_deterministic: bool = Field(default=False, env="TORCH_DETERMINISTIC")
+    torch_benchmark: bool = Field(default=True, env="TORCH_BENCHMARK")
+    torch_memory_fraction: float = Field(default=0.8, env="TORCH_MEMORY_FRACTION")
     
     # Models
     default_model_name: str = Field(
@@ -185,29 +186,43 @@ class Settings(PydanticBaseSettings):
         for directory in directories:
             directory.mkdir(parents=True, exist_ok=True)
     
-    def setup_tensorflow(self) -> None:
-        """Setup TensorFlow configuration."""
-        os.environ["TF_CPP_MIN_LOG_LEVEL"] = str(self.tf_cpp_min_log_level)
+    def setup_pytorch(self) -> None:
+        """Setup PyTorch configuration."""
         os.environ["CUDA_VISIBLE_DEVICES"] = self.cuda_visible_devices
         
-        if self.tf_force_gpu_allow_growth:
-            os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
-        
-        # Configure TensorFlow GPU memory allocation
-        import tensorflow as tf
-        gpus = tf.config.experimental.list_physical_devices('GPU')
-        if gpus:
-            try:
-                for gpu in gpus:
-                    tf.config.experimental.set_memory_growth(gpu, True)
-                    tf.config.experimental.set_virtual_device_configuration(
-                        gpu,
-                        [tf.config.experimental.VirtualDeviceConfiguration(
-                            memory_limit=int(1024 * 1024 * 1024 * self.tf_gpu_memory_allocation)
-                        )]
+        try:
+            import torch
+            
+            # Set deterministic behavior if requested
+            if self.torch_deterministic:
+                torch.backends.cudnn.deterministic = True
+                torch.backends.cudnn.benchmark = False
+                torch.use_deterministic_algorithms(True)
+            else:
+                torch.backends.cudnn.benchmark = self.torch_benchmark
+            
+            # Configure device
+            if self.torch_device == "auto":
+                device = "cuda" if torch.cuda.is_available() else "cpu"
+            else:
+                device = self.torch_device
+            
+            # Configure GPU memory if using CUDA
+            if device.startswith("cuda") and torch.cuda.is_available():
+                # Set memory fraction
+                if self.torch_memory_fraction < 1.0:
+                    torch.cuda.set_per_process_memory_fraction(
+                        self.torch_memory_fraction
                     )
-            except RuntimeError as e:
-                print(f"GPU configuration error: {e}")
+                
+                # Print GPU info
+                gpu_name = torch.cuda.get_device_name(0)
+                gpu_memory = torch.cuda.get_device_properties(0).total_memory / 1024**3
+                print(f"PyTorch GPU: {gpu_name} ({gpu_memory:.2f} GB)")
+        except ImportError:
+            print("PyTorch not installed. GPU acceleration will not be available.")
+        except Exception as e:
+            print(f"PyTorch GPU configuration error: {e}")
     
     class Config:
         """Pydantic configuration."""
@@ -219,7 +234,7 @@ class Settings(PydanticBaseSettings):
 # Global settings instance
 settings = Settings()
 
-# Initialize directories and TensorFlow on import
+# Initialize directories and PyTorch on import
 settings.create_directories()
 if not settings.testing:
-    settings.setup_tensorflow()
+    settings.setup_pytorch()

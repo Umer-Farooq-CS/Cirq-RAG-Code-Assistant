@@ -123,7 +123,7 @@ class LoggingConfig:
         )
         
         # Set specific logger levels
-        logging.getLogger("tensorflow").setLevel(logging.WARNING)
+        logging.getLogger("torch").setLevel(logging.WARNING)
         logging.getLogger("transformers").setLevel(logging.WARNING)
         logging.getLogger("cirq").setLevel(logging.INFO)
         logging.getLogger("urllib3").setLevel(logging.WARNING)
