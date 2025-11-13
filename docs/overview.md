@@ -10,7 +10,7 @@ The Cirq-RAG-Code-Assistant is a research-grade system designed to integrate wit
 1. **QCanvas Integration**: Seamlessly integrate with existing QCanvas quantum simulator
 2. **Educational Excellence**: Provide step-by-step explanations alongside generated code
 3. **Code Quality**: Generate syntactically correct, executable Cirq code
-4. **GPU Optimization**: Leverage TensorFlow GPU for performance optimization
+4. **GPU Optimization**: Leverage PyTorch CUDA GPU for performance optimization
 5. **Validation & Testing**: Ensure generated code works through simulation and testing
 
 ### Target Users

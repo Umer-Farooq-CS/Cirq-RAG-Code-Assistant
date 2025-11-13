@@ -27,29 +27,31 @@ This document provides a comprehensive overview of all technologies, frameworks,
 ## 🤖 Machine Learning & AI
 
 ### Deep Learning Framework
-- **TensorFlow**
-  - Version: 2.13.0+
+- **PyTorch**
+  - Version: 2.1.0+
   - Purpose: Primary deep learning framework for GPU optimization
-  - Key Features: GPU acceleration, distributed training, model optimization
-  - Usage: Neural network training, model inference, GPU computations
+  - Key Features: GPU acceleration with CUDA, dynamic computation graphs, model optimization
+  - Usage: Neural network training, model inference, GPU computations, embedding generation
+  - CUDA Support: Automatic CUDA detection and utilization when available
 
-- **TensorFlow GPU**
-  - Version: 2.13.0+
-  - Purpose: GPU-accelerated TensorFlow operations
+- **PyTorch CUDA**
+  - Version: 2.1.0+ (with CUDA support)
+  - Purpose: GPU-accelerated PyTorch operations
   - Key Features: CUDA support, GPU memory management, parallel processing
+  - Installation: Install PyTorch with CUDA from official PyTorch repository
 
 ### Natural Language Processing
 - **Transformers (Hugging Face)**
   - Version: 4.35.0+
   - Purpose: Pre-trained language models for text processing
   - Models: all-MiniLM-L6-v2, BERT-base-uncased
-  - Integration: Works with TensorFlow backend
+  - Integration: Works with PyTorch backend (primary)
 
 - **Sentence Transformers**
   - Version: 2.2.2+
   - Purpose: Semantic embeddings for RAG system
   - Key Features: Multi-language support, efficient similarity search
-  - GPU Support: TensorFlow-based GPU acceleration
+  - GPU Support: PyTorch-based GPU acceleration (default and optimized)
 
 - **spaCy**
   - Version: 3.7.0+
@@ -251,7 +253,7 @@ This document provides a comprehensive overview of all technologies, frameworks,
 - **Linux Ubuntu**
   - Version: 20.04+ (recommended)
   - Purpose: Primary development environment
-  - Features: Native TensorFlow GPU support, CUDA compatibility
+  - Features: Native PyTorch CUDA support, GPU compatibility
 
 ### Configuration Management
 - **PyYAML**
@@ -339,7 +341,7 @@ This document provides a comprehensive overview of all technologies, frameworks,
 - **Memory**: 8GB RAM minimum, 16GB recommended
 - **Storage**: 10GB free space
 - **CPU**: Multi-core processor recommended
-- **GPU**: NVIDIA GPU with CUDA support (for TensorFlow GPU)
+- **GPU**: NVIDIA GPU with CUDA support (for PyTorch CUDA)
 
 ### Python Requirements
 - **Python**: 3.11 or higher
@@ -347,14 +349,14 @@ This document provides a comprehensive overview of all technologies, frameworks,
 - **virtualenv**: For environment isolation
 
 ### GPU Dependencies
-- **CUDA**: For TensorFlow GPU acceleration
+- **CUDA**: For PyTorch CUDA acceleration
 - **cuDNN**: For deep learning GPU acceleration
 - **NVIDIA Driver**: Latest compatible driver
 
 ## 🚀 Performance Considerations
 
 ### Optimization Strategies
-- **GPU Acceleration**: Use TensorFlow GPU for neural network operations
+- **GPU Acceleration**: Use PyTorch CUDA for neural network operations
 - **Vector Search**: Use FAISS with HNSW index for fast similarity search
 - **Async Processing**: Use asyncio for concurrent operations
 - **Memory Management**: Optimize large data structures and embeddings
@@ -362,7 +364,7 @@ This document provides a comprehensive overview of all technologies, frameworks,
 
 ### Development Focus
 - **Local Development**: Optimized for single-machine development
-- **GPU Utilization**: Maximize TensorFlow GPU performance
+- **GPU Utilization**: Maximize PyTorch CUDA performance
 - **QCanvas Integration**: Seamless integration with existing quantum simulator
 
 ---

@@ -40,7 +40,7 @@ The `logs/` directory contains:
 - **Performance logs and metrics** for system monitoring
 - **Error logs and stack traces** for debugging
 - **Audit logs** for system operations and user interactions
-- **TensorFlow logs** for GPU utilization and training progress
+- **PyTorch logs** for GPU utilization and training progress
 
 ## ⚙️ System Management
 

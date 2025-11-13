@@ -3,11 +3,11 @@
 <div align="center">
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
-[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.13+-orange.svg)](https://tensorflow.org)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.1+-orange.svg)](https://pytorch.org)
 [![Cirq](https://img.shields.io/badge/Cirq-1.2+-green.svg)](https://quantumai.google/cirq)
 [![License](https://img.shields.io/badge/License-Academic%20Use-red.svg)](LICENSE)
 
-**A research-grade system for generating, optimizing, explaining, and validating Cirq quantum computing code using hybrid RAG + Multi-Agent architecture with TensorFlow GPU optimization.**
+**A research-grade system for generating, optimizing, explaining, and validating Cirq quantum computing code using hybrid RAG + Multi-Agent architecture with PyTorch CUDA GPU optimization.**
 
 </div>
 
@@ -18,7 +18,7 @@ The Cirq-RAG-Code-Assistant is a cutting-edge research project that combines **R
 ### 🚀 Key Features
 
 - **🧠 Hybrid RAG + Multi-Agent Architecture** - Combines knowledge retrieval with specialized agents
-- **⚡ TensorFlow GPU Optimization** - Leverages GPU acceleration for performance
+- **⚡ PyTorch CUDA GPU Optimization** - Leverages GPU acceleration for performance
 - **🎓 Educational Focus** - Provides step-by-step explanations alongside generated code
 - **🔧 Tool-Augmented Reasoning** - Uses compile/simulate loops for code validation
 - **🤖 Agentic Reinforcement Learning** - Iterative refinement using RL techniques
@@ -37,7 +37,7 @@ Our system employs four specialized agents working in coordination:
 
 ### Core Technologies
 - **Python 3.11+** - Primary development language
-- **TensorFlow 2.13+** - Deep learning and GPU optimization
+- **PyTorch 2.1+** - Deep learning and GPU optimization with CUDA
 - **Cirq 1.2+** - Quantum computing framework
 - **Sentence Transformers** - Text embeddings and similarity search
 - **FAISS/ChromaDB** - Vector database for knowledge retrieval
@@ -121,8 +121,8 @@ Our system employs four specialized agents working in coordination:
 
 ### Prerequisites
 
-- **Python 3.11+** (Linux Ubuntu recommended for TensorFlow GPU)
-- **NVIDIA GPU** (optional, for TensorFlow GPU acceleration)
+- **Python 3.11+** (Linux Ubuntu recommended for PyTorch CUDA GPU)
+- **NVIDIA GPU** (optional, for PyTorch CUDA acceleration)
 - **CUDA 12.0+** (if using GPU)
 
 ### Installation
@@ -160,7 +160,7 @@ chmod +x setup-dev.sh
    # Basic installation
    pip install -e .
    
-   # Development installation with TensorFlow GPU
+   # Development installation with PyTorch CUDA GPU
    pip install -e ".[dev,gpu,quantum]"
    ```
 
@@ -205,7 +205,7 @@ make clean             # Clean build artifacts
 # Installation options
 make install           # Basic installation
 make install-dev       # Development installation
-make install-gpu       # With TensorFlow GPU support
+make install-gpu       # With PyTorch CUDA support
 make install-quantum   # With quantum computing extensions
 ```
 
@@ -248,7 +248,7 @@ safety check
 
 1. **Code Generation Accuracy** - Achieve >90% syntactically correct Cirq code
 2. **Educational Value** - Provide comprehensive explanations and learning content
-3. **Performance Optimization** - Leverage TensorFlow GPU for neural network acceleration
+3. **Performance Optimization** - Leverage PyTorch CUDA for neural network acceleration
 4. **Validation & Testing** - Ensure generated code works through simulation
 5. **Reproducible Evaluation** - Establish benchmarks and evaluation metrics
 
@@ -323,7 +323,7 @@ This project is licensed under the **Academic Use License** - see the [LICENSE](
 ## 🙏 Acknowledgments
 
 - **Google Cirq Team** - For the excellent quantum computing framework
-- **TensorFlow Team** - For GPU optimization capabilities
+- **PyTorch Team** - For GPU optimization capabilities
 - **Open Source Community** - For the tools and libraries that made this possible
 
 ---

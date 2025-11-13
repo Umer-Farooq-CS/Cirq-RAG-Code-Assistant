@@ -16,7 +16,7 @@ pip install cirq-rag-code-assistant
 - **Memory**: 8GB RAM minimum, 16GB recommended
 - **Storage**: 10GB free space
 - **CPU**: Multi-core processor recommended
-- **GPU**: NVIDIA GPU with CUDA support (for TensorFlow GPU optimization)
+- **GPU**: NVIDIA GPU with CUDA support (for PyTorch CUDA optimization)
 
 ### Python Installation
 If you don't have Python 3.11+ installed:
@@ -28,7 +28,7 @@ sudo apt install python3.11 python3.11-venv python3.11-pip
 ```
 
 ### GPU Setup (Optional but Recommended)
-For TensorFlow GPU optimization:
+For PyTorch CUDA optimization:
 
 #### Install NVIDIA Drivers
 ```bash
@@ -40,16 +40,20 @@ sudo apt update
 sudo apt install nvidia-driver-525
 ```
 
-#### Install CUDA Toolkit
+#### Install PyTorch with CUDA
 ```bash
-# Install CUDA toolkit
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
-sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
-wget https://developer.download.nvidia.com/compute/cuda/12.0.0/local_installers/cuda-repo-ubuntu2004-12-0-local_12.0.0-525.60.13-1_amd64.deb
-sudo dpkg -i cuda-repo-ubuntu2004-12-0-local_12.0.0-525.60.13-1_amd64.deb
-sudo cp /var/cuda-repo-ubuntu2004-12-0-local/cuda-*-keyring.gpg /usr/share/keyrings/
-sudo apt-get update
-sudo apt-get -y install cuda
+# PyTorch comes with CUDA libraries, so separate CUDA installation may not be required
+# Install PyTorch with CUDA support (choose based on your CUDA version)
+# Check your CUDA version: nvidia-smi
+
+# For CUDA 11.8:
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+
+# For CUDA 12.1:
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+# Verify installation:
+python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
 ```
 
 ## 🔧 Installation Methods
@@ -119,8 +123,16 @@ poetry shell
 pip install cirq-rag-code-assistant
 ```
 
-### With TensorFlow GPU Support
+### With PyTorch CUDA GPU Support
 ```bash
+# First install PyTorch with CUDA (choose based on your CUDA version)
+# For CUDA 11.8:
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+
+# For CUDA 12.1:
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+# Then install the package
 pip install cirq-rag-code-assistant[gpu]
 ```
 
