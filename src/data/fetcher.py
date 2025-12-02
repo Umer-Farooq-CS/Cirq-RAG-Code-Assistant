@@ -183,6 +183,34 @@ class DatasetFetcher:
         
         return repo_path
     
+    def normalize_code_formatting(self, code: str) -> str:
+        """
+        Normalize code formatting to ensure consistent, readable format.
+
+        Args:
+            code: Raw code content
+
+        Returns:
+            Normalized code with consistent formatting
+        """
+        if not code.strip():
+            return code
+
+        # Normalize line endings to \n
+        code = code.replace('\r\n', '\n').replace('\r', '\n')
+
+        # Remove trailing whitespace from each line
+        lines = [line.rstrip() for line in code.split('\n')]
+
+        # Remove empty lines at the beginning and end
+        while lines and not lines[0].strip():
+            lines.pop(0)
+        while lines and not lines[-1].strip():
+            lines.pop()
+
+        # Join back with consistent newlines
+        return '\n'.join(lines)
+
     def extract_framework_code(
         self,
         repo_path: Path,
@@ -192,43 +220,46 @@ class DatasetFetcher:
     ) -> List[Dict]:
         """
         Extract relevant code samples from a repository.
-        
+
         Args:
             repo_path: Path to the repository
             framework: Framework name
             min_code_length: Minimum code length to include
             max_code_length: Maximum code length to include
-            
+
         Returns:
             List of dictionaries with framework, file, and code
         """
         results = []
         repo_path = Path(repo_path)
-        
+
         if not repo_path.exists():
             print(f"Warning: Repository path {repo_path} does not exist.")
             return results
-        
+
         # Find all Python files
         python_files = list(repo_path.rglob("*.py"))
-        
+
         print(f"Scanning {len(python_files)} Python files in {repo_path.name}...")
-        
+
         for file_path in tqdm(python_files, desc=f"Extracting {framework} code"):
             # Skip irrelevant files
             if self.should_skip_file(str(file_path)):
                 continue
-            
+
             try:
                 with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-                    code = f.read().strip()
+                    code = f.read()
             except Exception:
                 continue
-            
+
+            # Normalize code formatting
+            code = self.normalize_code_formatting(code)
+
             # Filter by code length
             if len(code) < min_code_length or len(code) > max_code_length:
                 continue
-            
+
             # Check if code is relevant
             if self.is_relevant_code(code, framework):
                 # Use relative path for cleaner output
@@ -239,7 +270,7 @@ class DatasetFetcher:
                     "code": code,
                     "code_length": len(code),
                 })
-        
+
         return results
     
     def fetch_all(
@@ -288,6 +319,9 @@ class DatasetFetcher:
         output_path = self.output_dir / output_filename
         with open(output_path, "w", encoding="utf-8") as f:
             for item in all_data:
+                # Ensure code is properly formatted before saving
+                if 'code' in item:
+                    item['code'] = self.normalize_code_formatting(item['code'])
                 f.write(json.dumps(item, ensure_ascii=False) + "\n")
         
         # Print statistics

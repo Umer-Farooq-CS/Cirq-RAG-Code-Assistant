@@ -353,6 +353,16 @@ class DescriptionGenerator:
         print(f"Writing output to {output_path}...")
         with open(output_path, "w", encoding="utf-8") as outfile:
             for entry in output_entries:
+                # Ensure code formatting is preserved
+                if 'code' in entry and isinstance(entry['code'], str):
+                    # Normalize line endings and trailing whitespace
+                    code_lines = [line.rstrip() for line in entry['code'].split('\n')]
+                    # Remove empty lines at start/end but preserve internal structure
+                    while code_lines and not code_lines[0].strip():
+                        code_lines.pop(0)
+                    while code_lines and not code_lines[-1].strip():
+                        code_lines.pop()
+                    entry['code'] = '\n'.join(code_lines)
                 outfile.write(json.dumps(entry, ensure_ascii=False) + "\n")
         
         # Print statistics

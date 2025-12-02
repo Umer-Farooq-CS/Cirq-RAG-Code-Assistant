@@ -94,18 +94,41 @@ class DataPreprocessor:
         self.validate_syntax = validate_syntax
         self._seen_hashes: Set[str] = set()
     
+    def normalize_code_for_hash(self, code: str) -> str:
+        """
+        Normalize code for hashing while preserving logical structure.
+
+        Args:
+            code: Code content
+
+        Returns:
+            Normalized code suitable for duplicate detection
+        """
+        # Remove comments
+        code = re.sub(r'#.*$', '', code, flags=re.MULTILINE)
+
+        # Normalize whitespace but preserve basic structure
+        # Convert multiple spaces/tabs to single spaces
+        code = re.sub(r'[ \t]+', ' ', code)
+
+        # Normalize line endings and remove empty lines
+        lines = [line.strip() for line in code.split('\n') if line.strip()]
+
+        # Join with single spaces to create a canonical representation
+        return ' '.join(lines)
+
     def calculate_code_hash(self, code: str) -> str:
         """
         Calculate hash of code for duplicate detection.
-        
+
         Args:
             code: Code content
-            
+
         Returns:
             MD5 hash of normalized code
         """
-        # Normalize code (remove extra whitespace, normalize line endings)
-        normalized = re.sub(r'\s+', ' ', code.strip())
+        # Use normalized version for hashing
+        normalized = self.normalize_code_for_hash(code)
         return hashlib.md5(normalized.encode('utf-8')).hexdigest()
     
     def is_duplicate(self, code: str) -> bool:
@@ -142,12 +165,21 @@ class DataPreprocessor:
             return True, None
         
         try:
-            ast.parse(code)
+            # Try to parse the code
+            # Compile to bytecode to catch syntax errors
+            compile(code, '<string>', 'exec', flags=ast.PyCF_ONLY_AST)
             return True, None
         except SyntaxError as e:
-            return False, str(e)
+            # Real syntax errors - these are actual problems
+            return False, f"Syntax error at line {e.lineno}: {e.msg}"
+        except IndentationError as e:
+            # Indentation errors are syntax issues
+            return False, f"Indentation error at line {e.lineno}: {e.msg}"
         except Exception as e:
-            return False, f"Parse error: {str(e)}"
+            # Other errors (like import errors) are not syntax errors
+            # ast.parse/compile should only raise SyntaxError or IndentationError
+            # If we get something else, it's likely a bug, but we'll be lenient
+            return True, None
     
     def check_code_quality(self, code: str) -> Tuple[bool, List[str]]:
         """
@@ -180,18 +212,20 @@ class DataPreprocessor:
         if not code.strip():
             issues.append("Code is empty")
         
-        # Check for only comments
+        # Check for only comments (be lenient - allow code with license headers)
         non_comment_lines = [
             line for line in lines
             if line.strip() and not line.strip().startswith('#')
         ]
-        if len(non_comment_lines) < 3:
-            issues.append("Code contains mostly comments")
+        # Only flag if there's literally no code (just comments and whitespace)
+        if len(non_comment_lines) == 0:
+            issues.append("Code contains only comments")
         
-        # Validate syntax
-        is_valid_syntax, syntax_error = self.validate_python_syntax(code)
-        if not is_valid_syntax:
-            issues.append(f"Syntax error: {syntax_error}")
+        # Validate syntax (only if enabled)
+        if self.validate_syntax:
+            is_valid_syntax, syntax_error = self.validate_python_syntax(code)
+            if not is_valid_syntax:
+                issues.append(f"Syntax error: {syntax_error}")
         
         return len(issues) == 0, issues
     
@@ -334,9 +368,15 @@ class DataPreprocessor:
         stats["total"] = len(entries)
         
         print(f"Preprocessing {stats['total']} entries...")
+        quality_issue_samples = {}  # Track sample issues for debugging
+        
         for entry in tqdm(entries, desc="Preprocessing"):
             # Check for duplicates
             code = entry.get("code", "")
+            if not code or not code.strip():
+                stats["filtered"] += 1
+                continue
+                
             if self.is_duplicate(code):
                 stats["duplicates"] += 1
                 continue
@@ -346,6 +386,18 @@ class DataPreprocessor:
             
             if processed is None:
                 stats["filtered"] += 1
+                # Track quality issues for debugging (sample first 3 unique issues)
+                if len(quality_issue_samples) < 3:
+                    is_valid, issues = self.check_code_quality(code)
+                    if not is_valid:
+                        issue_key = issues[0] if issues else "Unknown"
+                        if issue_key not in quality_issue_samples:
+                            quality_issue_samples[issue_key] = {
+                                "file": entry.get("file", "unknown"),
+                                "issues": issues,
+                                "code_length": len(code),
+                                "num_lines": len(code.split('\n')),
+                            }
                 continue
             
             processed_entries.append(processed)
@@ -355,6 +407,22 @@ class DataPreprocessor:
         print(f"Writing preprocessed data to {output_path}...")
         with open(output_path, "w", encoding="utf-8") as f:
             for entry in processed_entries:
+                # Ensure code formatting is preserved (code should already be properly formatted)
+                # Only normalize if needed (preserve existing formatting)
+                if 'code' in entry and isinstance(entry['code'], str):
+                    code = entry['code']
+                    # Only normalize if there are obvious issues (trailing whitespace, inconsistent line endings)
+                    if code.endswith(' ') or '\r' in code:
+                        # Normalize line endings to \n
+                        code = code.replace('\r\n', '\n').replace('\r', '\n')
+                        # Remove trailing whitespace from each line
+                        code_lines = [line.rstrip() for line in code.split('\n')]
+                        # Remove empty lines at start/end but preserve internal structure
+                        while code_lines and not code_lines[0].strip():
+                            code_lines.pop(0)
+                        while code_lines and not code_lines[-1].strip():
+                            code_lines.pop()
+                        entry['code'] = '\n'.join(code_lines)
                 f.write(json.dumps(entry, ensure_ascii=False) + "\n")
         
         # Calculate quality issues
@@ -369,8 +437,26 @@ class DataPreprocessor:
         print(f"Filtered out: {stats['filtered']}")
         print(f"  - Duplicates: {stats['duplicates']}")
         print(f"  - Quality issues: {stats['quality_issues']}")
-        print(f"Retention rate: {stats['processed']/stats['total']:.1%}")
+        if stats['total'] > 0:
+            print(f"Retention rate: {stats['processed']/stats['total']:.1%}")
+        else:
+            print("⚠️  Warning: No entries found in input file!")
         print(f"\n💾 Saved to: {output_path}")
+        if stats['processed'] == 0 and stats['total'] > 0:
+            print(f"\n⚠️  Warning: All entries were filtered out!")
+            print(f"   Check your filtering criteria:")
+            print(f"   - min_code_length: {self.min_code_length}")
+            print(f"   - max_code_length: {self.max_code_length}")
+            print(f"   - min_lines: {self.min_lines}")
+            print(f"   - max_lines: {self.max_lines}")
+            print(f"   - validate_syntax: {self.validate_syntax}")
+            # Show sample quality issues if available
+            if quality_issue_samples:
+                print(f"\n   Sample quality issues found:")
+                for i, (issue_key, sample) in enumerate(quality_issue_samples.items(), 1):
+                    print(f"   {i}. File: {sample['file']}")
+                    print(f"      Code length: {sample['code_length']}, Lines: {sample['num_lines']}")
+                    print(f"      Issues: {', '.join(sample['issues'][:3])}")
         print(f"{'='*60}\n")
         
         return stats

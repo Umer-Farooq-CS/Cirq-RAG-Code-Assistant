@@ -103,31 +103,39 @@ class DatasetLoader:
         
         entries = self.load()
         
+        # Initialize stats with default values
+        stats = {
+            "total": 0,
+            "frameworks": {},
+            "avg_code_length": 0,
+            "min_code_length": 0,
+            "max_code_length": 0,
+            "with_descriptions": 0,
+            "description_coverage": 0.0,
+        }
+        
         if not entries:
-            return {
-                "total": 0,
-                "frameworks": {},
-                "avg_code_length": 0,
-                "with_descriptions": 0,
-            }
+            self._stats = stats
+            return stats
         
         frameworks = Counter(entry.get("framework", "Unknown") for entry in entries)
         code_lengths = [
-            len(entry.get("code", "")) for entry in entries
+            len(entry.get("code", "")) for entry in entries if entry.get("code")
         ]
         with_descriptions = sum(
             1 for entry in entries if entry.get("description")
         )
         
-        stats = {
+        # Update stats with calculated values
+        stats.update({
             "total": len(entries),
             "frameworks": dict(frameworks),
             "avg_code_length": sum(code_lengths) / len(code_lengths) if code_lengths else 0,
             "min_code_length": min(code_lengths) if code_lengths else 0,
             "max_code_length": max(code_lengths) if code_lengths else 0,
             "with_descriptions": with_descriptions,
-            "description_coverage": with_descriptions / len(entries) if entries else 0,
-        }
+            "description_coverage": with_descriptions / len(entries) if entries else 0.0,
+        })
         
         self._stats = stats
         return stats

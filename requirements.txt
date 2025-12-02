@@ -49,14 +49,14 @@ aiohttp>=3.9.0
 # Data Storage & Management (minimal for development)
 # ==================================================
 sqlalchemy>=2.0.0
-sqlite3
+# sqlite3 is part of Python's standard library, no need to install
 
 # Configuration & Environment
 # ===========================
 python-dotenv>=1.0.0
 pyyaml>=6.0.1
 toml>=0.10.2
-configparser>=6.0.0
+# configparser is part of Python's standard library, no need to install
 
 # Scientific Computing & Optimization
 # ===================================
@@ -70,7 +70,7 @@ seaborn>=0.12.0
 
 # Async & Concurrency (minimal for development)
 # ============================================
-asyncio
+# asyncio is part of Python's standard library, no need to install
 
 # Logging (minimal for development)
 # ================================
@@ -147,4 +147,4 @@ qutip>=4.7.0  # For quantum simulations
 # Python Version Constraints
 # ==========================
 # Ensure compatibility with Python 3.11+
-python_requires>=3.11
+# Note: python_requires is specified in setup.py or pyproject.toml, not in requirements.txt
