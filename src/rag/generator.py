@@ -41,6 +41,9 @@ Links to other modules:
 import os
 import re
 from typing import Dict, Optional, Any, List
+
+import requests
+
 from .retriever import Retriever
 
 try:
@@ -91,26 +94,37 @@ Generated code:"""
     def __init__(
         self,
         retriever: Retriever,
-        model: str = "gpt-4",
-        provider: str = "openai",
-        temperature: float = 0.2,
-        max_tokens: int = 2000,
+        model: Optional[str] = None,
+        provider: Optional[str] = None,
+        temperature: Optional[float] = None,
+        max_tokens: Optional[int] = None,
     ):
         """
         Initialize the Generator.
         
         Args:
             retriever: Retriever instance for context retrieval
-            model: LLM model name
-            provider: LLM provider ("openai" or "anthropic")
-            temperature: Generation temperature (lower = more deterministic)
-            max_tokens: Maximum tokens to generate
+            model: LLM model name (defaults to config.models.llm.model)
+            provider: LLM provider ("openai", "anthropic", or "ollama"; defaults to config.models.llm.provider)
+            temperature: Generation temperature (defaults to config.models.llm.temperature or 0.2)
+            max_tokens: Maximum tokens to generate (defaults to config.models.llm.max_tokens or 2000)
         """
         self.retriever = retriever
+
+        # Load defaults from configuration if not explicitly provided
+        cfg = get_config()
+        llm_cfg = cfg.get("models", {}).get("llm", {})
+        model = model or llm_cfg.get("model", "gpt-4")
+        provider = (provider or llm_cfg.get("provider", "openai")).lower()
+        if temperature is None:
+            temperature = llm_cfg.get("temperature", 0.2)
+        if max_tokens is None:
+            max_tokens = llm_cfg.get("max_tokens", 2000)
+
         self.model = model
-        self.provider = provider.lower()
-        self.temperature = temperature
-        self.max_tokens = max_tokens
+        self.provider = provider
+        self.temperature = float(temperature)
+        self.max_tokens = int(max_tokens)
         
         # Initialize LLM client
         if self.provider == "openai":
@@ -135,6 +149,11 @@ Generated code:"""
             if not api_key:
                 raise ValueError("ANTHROPIC_API_KEY not set in config or environment")
             self.client = anthropic.Anthropic(api_key=api_key)
+        elif self.provider == "ollama":
+            # Ollama uses a local HTTP API; no SDK client object is required.
+            # The base URL can be overridden with the OLLAMA_HOST environment variable.
+            self.ollama_base_url = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+            self.client = None
         else:
             raise ValueError(f"Unsupported provider: {provider}")
         
@@ -196,7 +215,7 @@ Generated code:"""
                     **kwargs
                 )
                 generated_text = response.choices[0].message.content
-            else:  # anthropic
+            elif self.provider == "anthropic":
                 response = self.client.messages.create(
                     model=self.model,
                     max_tokens=self.max_tokens,
@@ -207,6 +226,24 @@ Generated code:"""
                     **kwargs
                 )
                 generated_text = response.content[0].text
+            else:  # ollama
+                url = f"{self.ollama_base_url.rstrip('/')}/api/chat"
+                payload = {
+                    "model": self.model,
+                    "messages": [
+                        {"role": "system", "content": "You are an expert Cirq quantum computing programmer."},
+                        {"role": "user", "content": prompt},
+                    ],
+                    "stream": False,
+                    "options": {
+                        "temperature": self.temperature,
+                        "num_predict": self.max_tokens,
+                    },
+                }
+                resp = requests.post(url, json=payload, timeout=kwargs.get("timeout", 300))
+                resp.raise_for_status()
+                data = resp.json()
+                generated_text = data.get("message", {}).get("content", "")
             
             # Extract code from response
             code = self._extract_code(generated_text)

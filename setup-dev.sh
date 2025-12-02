@@ -121,7 +121,7 @@ DEBUG=True
 ENVIRONMENT=development
 
 # Model Configuration
-DEFAULT_MODEL_NAME=sentence-transformers/all-MiniLM-L6-v2
+DEFAULT_MODEL_NAME=BAAI/bge-base-en-v1.5
 VECTOR_DB_TYPE=faiss
 MAX_RETRIEVAL_RESULTS=5
 

@@ -89,7 +89,7 @@ class EmbeddingModel:
             )
         
         config = get_config()
-        self.model_name = model_name or config.get("models.embedding.model_name", "sentence-transformers/all-MiniLM-L6-v2")
+        self.model_name = model_name or config.get("models.embedding.model_name", "BAAI/bge-base-en-v1.5")
         self.device = self._determine_device(device)
         self.cache_folder = cache_folder
         

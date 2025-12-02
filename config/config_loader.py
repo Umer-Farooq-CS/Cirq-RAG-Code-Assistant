@@ -128,13 +128,13 @@ class ConfigLoader:
             "api_keys": {},
             "models": {
                 "embedding": {
-                    "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+                    "model_name": "BAAI/bge-base-en-v1.5",
                     "device": "auto",
-                    "batch_size": 32
+                    "batch_size": 16
                 },
                 "llm": {
-                    "provider": "openai",
-                    "model": "gpt-4",
+                    "provider": "ollama",
+                    "model": "qwen2.5-coder:14b-instruct-q4_K_M",
                     "temperature": 0.2,
                     "max_tokens": 2000
                 }
