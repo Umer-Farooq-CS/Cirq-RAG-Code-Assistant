@@ -72,13 +72,29 @@ class Generator:
     to generate accurate, executable Cirq code.
     """
     
-    # Code generation prompt template
+    # Code generation prompt template (with RAG context)
     PROMPT_TEMPLATE = """You are an expert quantum computing programmer specializing in Google's Cirq framework.
 
 Your task is to generate syntactically correct, executable Cirq code based on the user's request and the provided examples.
 
 Context from knowledge base:
 {context}
+
+User request: {query}
+
+Instructions:
+1. Generate complete, executable Cirq code that fulfills the user's request
+2. Follow Cirq best practices and conventions
+3. Include necessary imports
+4. Add comments explaining key steps
+5. Ensure the code is syntactically correct and can be executed
+
+Generated code:"""
+
+    # Direct prompt template (without RAG context)
+    DIRECT_PROMPT_TEMPLATE = """You are an expert quantum computing programmer specializing in Google's Cirq framework.
+
+Your task is to generate syntactically correct, executable Cirq code based on the user's request.
 
 User request: {query}
 
@@ -127,35 +143,29 @@ Generated code:"""
         self.max_tokens = int(max_tokens)
         
         # Initialize LLM client
-        if self.provider == "openai":
+        if self.provider == "ollama":
+            # Ollama uses a local HTTP API; no SDK client object is required.
+            # The base URL can be overridden with the OLLAMA_HOST environment variable.
+            self.ollama_base_url = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+            self.client = None
+        elif self.provider == "openai":
             if not OPENAI_AVAILABLE:
                 raise ImportError(
                     "OpenAI library is required. "
                     "Install it with: pip install openai"
                 )
-            config = get_config()
-            api_key = config.get("api_keys.openai_api_key") or os.getenv("OPENAI_API_KEY")
-            if not api_key:
-                raise ValueError("OPENAI_API_KEY not set in config or environment")
-            self.client = OpenAI(api_key=api_key)
+            # OpenAI client will use OPENAI_API_KEY env var automatically
+            self.client = OpenAI()
         elif self.provider == "anthropic":
             if not ANTHROPIC_AVAILABLE:
                 raise ImportError(
                     "Anthropic library is required. "
                     "Install it with: pip install anthropic"
                 )
-            config = get_config()
-            api_key = config.get("api_keys.anthropic_api_key") or os.getenv("ANTHROPIC_API_KEY")
-            if not api_key:
-                raise ValueError("ANTHROPIC_API_KEY not set in config or environment")
-            self.client = anthropic.Anthropic(api_key=api_key)
-        elif self.provider == "ollama":
-            # Ollama uses a local HTTP API; no SDK client object is required.
-            # The base URL can be overridden with the OLLAMA_HOST environment variable.
-            self.ollama_base_url = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-            self.client = None
+            # Anthropic client will use ANTHROPIC_API_KEY env var automatically
+            self.client = anthropic.Anthropic()
         else:
-            raise ValueError(f"Unsupported provider: {provider}")
+            raise ValueError(f"Unsupported provider: {provider}. Use 'ollama', 'openai', or 'anthropic'.")
         
         logger.info(f"Initialized Generator with {provider}/{model}")
     
@@ -344,3 +354,149 @@ Generated code:"""
                     break
         
         return metadata
+
+    def build_prompt(
+        self,
+        query: str,
+        algorithm: Optional[str] = None,
+        top_k: int = 3,
+    ) -> Dict[str, Any]:
+        """
+        Build the full RAG prompt and return it along with the context.
+        
+        This method is useful for inspecting what the RAG system sends to the LLM.
+        
+        Args:
+            query: Natural language description of desired code
+            algorithm: Optional algorithm type (e.g., "vqe", "qaoa")
+            top_k: Number of examples to retrieve for context
+            
+        Returns:
+            Dictionary with full_prompt, context, and context_results
+        """
+        # Retrieve relevant context
+        context_results = self.retriever.retrieve(
+            query=query,
+            top_k=top_k,
+            algorithm=algorithm,
+        )
+        
+        # Format context
+        context = self.retriever.retrieve_context(
+            query=query,
+            top_k=top_k,
+            algorithm=algorithm,
+        )
+        
+        # Build prompt
+        full_prompt = self.PROMPT_TEMPLATE.format(
+            context=context if context else "No relevant examples found.",
+            query=query,
+        )
+        
+        return {
+            "full_prompt": full_prompt,
+            "context": context,
+            "context_results": context_results,
+            "num_examples": len(context_results),
+        }
+
+    def build_direct_prompt(self, query: str) -> str:
+        """
+        Build the direct LLM prompt (without RAG context).
+        
+        Args:
+            query: Natural language description of desired code
+            
+        Returns:
+            The formatted direct prompt string
+        """
+        return self.DIRECT_PROMPT_TEMPLATE.format(query=query)
+
+    def generate_direct(
+        self,
+        query: str,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Generate Cirq code directly from the LLM without RAG context.
+        
+        This method is useful for comparing RAG-augmented generation with
+        direct LLM generation.
+        
+        Args:
+            query: Natural language description of desired code
+            **kwargs: Additional generation parameters
+            
+        Returns:
+            Dictionary with generated code and metadata
+        """
+        # Build direct prompt (no RAG context)
+        prompt = self.DIRECT_PROMPT_TEMPLATE.format(query=query)
+        
+        logger.info(f"Generating code directly (no RAG) using {self.provider}/{self.model}")
+        
+        try:
+            if self.provider == "openai":
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": "You are an expert Cirq quantum computing programmer."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=self.temperature,
+                    max_tokens=self.max_tokens,
+                    **kwargs
+                )
+                generated_text = response.choices[0].message.content
+            elif self.provider == "anthropic":
+                response = self.client.messages.create(
+                    model=self.model,
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ],
+                    **kwargs
+                )
+                generated_text = response.content[0].text
+            else:  # ollama
+                url = f"{self.ollama_base_url.rstrip('/')}/api/chat"
+                payload = {
+                    "model": self.model,
+                    "messages": [
+                        {"role": "system", "content": "You are an expert Cirq quantum computing programmer."},
+                        {"role": "user", "content": prompt},
+                    ],
+                    "stream": False,
+                    "options": {
+                        "temperature": self.temperature,
+                        "num_predict": self.max_tokens,
+                    },
+                }
+                resp = requests.post(url, json=payload, timeout=kwargs.get("timeout", 300))
+                resp.raise_for_status()
+                data = resp.json()
+                generated_text = data.get("message", {}).get("content", "")
+            
+            # Extract code from response
+            code = self._extract_code(generated_text)
+            
+            # Extract metadata
+            metadata = self._extract_metadata(code, None)
+            
+            result = {
+                "code": code,
+                "raw_response": generated_text,
+                "metadata": metadata,
+                "context_used": 0,  # No RAG context used
+                "method": "direct_llm",
+            }
+            
+            logger.info("✅ Direct code generation completed")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error generating code directly: {e}")
+            raise
+
