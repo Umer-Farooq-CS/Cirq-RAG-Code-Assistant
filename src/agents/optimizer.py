@@ -80,31 +80,31 @@ class OptimizerAgent(BaseAgent):
             # Analyze optimized circuit
             optimized_analysis = self.analyzer.analyze(optimized_circuit)
             
-        # RL optimization
-        if task.get("use_rl", False):
-            optimized_circuit = self._optimize_with_rl(optimized_circuit)
-            # Re-analyze after RL
-            optimized_analysis = self.analyzer.analyze(optimized_circuit)
+            # RL optimization
+            if task.get("use_rl", False):
+                optimized_circuit = self._optimize_with_rl(optimized_circuit)
+                # Re-analyze after RL
+                optimized_analysis = self.analyzer.analyze(optimized_circuit)
+            
+            # Compare results
+            comparison = self.analyzer.compare(circuit, optimized_circuit)
+            
+            return {
+                "success": True,
+                "original_code": str(circuit) if code else None,
+                "optimized_code": str(optimized_circuit),
+                "original_metrics": original_analysis["metrics"],
+                "optimized_metrics": optimized_analysis["metrics"],
+                "improvements": comparison.get("improvements", []),
+                "differences": comparison.get("differences", {}),
+            }
         
-        # Compare results
-        comparison = self.analyzer.compare(circuit, optimized_circuit)
-        
-        return {
-            "success": True,
-            "original_code": str(circuit) if code else None,
-            "optimized_code": str(optimized_circuit),
-            "original_metrics": original_analysis["metrics"],
-            "optimized_metrics": optimized_analysis["metrics"],
-            "improvements": comparison.get("improvements", []),
-            "differences": comparison.get("differences", {}),
-        }
-        
-    except Exception as e:
-        logger.error(f"OptimizerAgent error: {e}")
-        return {
-            "success": False,
-            "error": str(e),
-        }
+        except Exception as e:
+            logger.error(f"OptimizerAgent error: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+            }
 
     def _optimize_circuit(self, circuit: cirq.Circuit, level: str) -> cirq.Circuit:
         """Apply heuristic optimizations to circuit."""
