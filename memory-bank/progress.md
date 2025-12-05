@@ -1,19 +1,27 @@
 # Progress
 
-What works:
+## What Works
 - Project skeleton and Memory Bank initialized
-- Documentation structure focused on core research goals
+- Documentation structure reflects new agent pipeline architecture
 - PyTorch CUDA GPU configuration in requirements
-- Linux Ubuntu development environment setup
+- Multi-agent system with defined agent roles
+- RAG system scaffolding for code retrieval
 
-Planned:
-- RAG pipeline stub with PyTorch embeddings
-- Agent interfaces and evaluation harness
-- Multi-agent architecture implementation
+## Agent Pipeline Flow (Documented)
+```
+Designer (Always) → [Validator] → [Optimizer ⟷ Validator Loop] → Final Validator (Always)
+Educational Agent: Runs independently when requested
+```
 
-Future enhancement (post-project):
+## Planned
+- Implement conditional agent execution in orchestrator
+- Add optimizer-validator loop mechanism
+- Enable/disable parameters for Validator and Optimizer
+- Educational Agent parallel execution support
+
+## Future Enhancement (Post-Project)
 - QCanvas integration API design
 - QCanvas integration implementation
 
-Issues:
+## Issues
 - PyTorch CUDA GPU setup needs validation on target hardware

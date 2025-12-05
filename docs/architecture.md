@@ -16,11 +16,15 @@ graph TB
         WORKFLOW[Workflow Manager]
     end
     
-    subgraph "Agent Layer"
-        DESIGNER[Designer Agent]
-        OPTIMIZER[Optimizer Agent]
-        VALIDATOR[Validator Agent]
-        EDUCATIONAL[Educational Agent]
+    subgraph "Agent Layer - Main Pipeline"
+        DESIGNER[Designer Agent<br/>Always Runs]
+        VALIDATOR[Validator Agent<br/>Conditional]
+        OPTIMIZER[Optimizer Agent<br/>Conditional]
+        FINAL_VAL[Final Validator<br/>Always Runs]
+    end
+    
+    subgraph "Agent Layer - Independent"
+        EDUCATIONAL[Educational Agent<br/>Independent/Parallel]
     end
     
     subgraph "RAG System"
@@ -45,10 +49,16 @@ graph TB
     UI --> ORCH
     API --> ORCH
     ORCH --> WORKFLOW
+    
+    %% Main Pipeline Flow
     WORKFLOW --> DESIGNER
-    WORKFLOW --> OPTIMIZER
-    WORKFLOW --> VALIDATOR
-    WORKFLOW --> EDUCATIONAL
+    DESIGNER --> VALIDATOR
+    VALIDATOR --> OPTIMIZER
+    OPTIMIZER -.->|Loop if needed| VALIDATOR
+    OPTIMIZER --> FINAL_VAL
+    
+    %% Educational Agent - Independent
+    WORKFLOW -.->|Optional/Parallel| EDUCATIONAL
     
     DESIGNER --> RETRIEVER
     OPTIMIZER --> RETRIEVER
@@ -61,10 +71,12 @@ graph TB
     
     DESIGNER --> COMPILER
     VALIDATOR --> SIMULATOR
+    FINAL_VAL --> SIMULATOR
     OPTIMIZER --> ANALYZER
     
     VALIDATOR --> METRICS
     OPTIMIZER --> METRICS
+    FINAL_VAL --> METRICS
     METRICS --> BENCHMARK
     BENCHMARK --> REPORTS
 ```
@@ -268,24 +280,64 @@ sequenceDiagram
     participant D as Designer Agent
     participant R as RAG System
     participant V as Validator Agent
+    participant Opt as Optimizer Agent
+    participant FV as Final Validator
     participant E as Educational Agent
     
-    U->>O: Natural language request
+    U->>O: Natural language request (with options)
+    
+    Note over O,D: Designer Always Runs
     O->>D: Generate code request
     D->>R: Retrieve relevant examples
     R-->>D: Context and examples
     D-->>O: Generated code
-    O->>V: Validate code
-    V-->>O: Validation results
-    O->>E: Generate explanations
-    E-->>O: Educational content
-    O-->>U: Complete response
+    
+    alt Validation Enabled
+        O->>V: Validate code
+        V-->>O: Validation results
+    end
+    
+    alt Optimization Enabled
+        O->>Opt: Optimize circuit
+        Opt-->>O: Optimized code
+        
+        loop Re-validation if needed
+            O->>V: Re-validate optimized code
+            V-->>O: Validation results
+            O->>Opt: Re-optimize based on feedback
+            Opt-->>O: Updated code
+        end
+    end
+    
+    Note over O,FV: Final Validator Always Runs
+    O->>FV: Final validation
+    FV-->>O: Final validation results
+    
+    O-->>U: Complete response with code
+    
+    Note over E: Educational Agent (Independent)
+    alt Educational Mode Enabled
+        O->>E: Generate explanations (parallel)
+        E-->>O: Educational content
+        O-->>U: Explanations for user prompt
+    end
 ```
 
-### 2. Agent Communication Pattern
-- **Asynchronous Communication**: Agents communicate via message queues
-- **Event-Driven Architecture**: Agents respond to events and state changes
-- **Shared Context**: Common context object passed between agents
+### 2. Agent Pipeline Pattern
+The system follows a **sequential pipeline with conditional stages**:
+
+```
+Designer (Always) → [Validator] → [Optimizer ⟷ Validator Loop] → Final Validator (Always)
+                                        
+Educational Agent runs independently, focused on user prompt explanations
+```
+
+### 3. Agent Communication Pattern
+- **Sequential Pipeline**: Main agents process in defined order
+- **Conditional Stages**: Validator and Optimizer can be enabled/disabled
+- **Iterative Loop**: Optimizer can request re-validation for improvements
+- **Parallel Processing**: Educational Agent runs independently when requested
+- **Shared Context**: Common context object passed between pipeline agents
 - **Error Propagation**: Failures are handled gracefully with fallback options
 
 ## 🛡️ Security & Reliability

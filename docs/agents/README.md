@@ -2,7 +2,7 @@
 
 ## 🤖 Multi-Agent Architecture Overview
 
-The Cirq-RAG-Code-Assistant employs a sophisticated multi-agent system where specialized agents collaborate to generate, optimize, validate, and explain quantum computing code. Each agent has distinct responsibilities and expertise areas.
+The Cirq-RAG-Code-Assistant employs a sophisticated multi-agent system with a **sequential pipeline architecture**. Agents process code through defined stages, with conditional validation and optimization steps.
 
 ## 🏗️ Agent Architecture
 
@@ -13,11 +13,15 @@ graph TD
         WORKFLOW[Workflow Manager]
     end
     
-    subgraph "Core Agents"
-        DESIGNER[Designer Agent<br/>Code Generation]
-        OPTIMIZER[Optimizer Agent<br/>Performance Tuning]
-        VALIDATOR[Validator Agent<br/>Testing & Validation]
-        EDUCATIONAL[Educational Agent<br/>Learning Support]
+    subgraph "Main Pipeline - Sequential Flow"
+        DESIGNER[Designer Agent<br/>Code Generation<br/>✓ Always Runs]
+        VALIDATOR[Validator Agent<br/>Testing & Validation<br/>○ Conditional]
+        OPTIMIZER[Optimizer Agent<br/>Performance Tuning<br/>○ Conditional]
+        FINAL_VAL[Final Validator<br/>Quality Assurance<br/>✓ Always Runs]
+    end
+    
+    subgraph "Independent Agent"
+        EDUCATIONAL[Educational Agent<br/>Learning Support<br/>⟿ Runs Independently]
     end
     
     subgraph "Shared Resources"
@@ -26,10 +30,14 @@ graph TD
         KB[Knowledge Base]
     end
     
-    ORCH --> DESIGNER
-    ORCH --> OPTIMIZER
-    ORCH --> VALIDATOR
-    ORCH --> EDUCATIONAL
+    ORCH --> WORKFLOW
+    WORKFLOW --> DESIGNER
+    DESIGNER --> VALIDATOR
+    VALIDATOR --> OPTIMIZER
+    OPTIMIZER -.->|Loop if needed| VALIDATOR
+    OPTIMIZER --> FINAL_VAL
+    
+    WORKFLOW -.->|Optional/Parallel| EDUCATIONAL
     
     DESIGNER --> RAG
     OPTIMIZER --> RAG
@@ -39,6 +47,7 @@ graph TD
     DESIGNER --> TOOLS
     OPTIMIZER --> TOOLS
     VALIDATOR --> TOOLS
+    FINAL_VAL --> TOOLS
     EDUCATIONAL --> TOOLS
     
     RAG --> KB
@@ -115,7 +124,14 @@ graph TD
 
 ## 🔄 Agent Workflow
 
-### Standard Workflow
+### Pipeline Flow Pattern
+```
+Designer (Always) → [Validator] → [Optimizer ⟷ Validator Loop] → Final Validator (Always)
+
+Educational Agent: Runs independently when requested, focused on user prompt explanations
+```
+
+### Standard Workflow (Full Pipeline)
 ```mermaid
 sequenceDiagram
     participant U as User
@@ -123,41 +139,80 @@ sequenceDiagram
     participant D as Designer
     participant R as RAG System
     participant V as Validator
-    participant E as Educational
     participant Opt as Optimizer
+    participant FV as Final Validator
     
     U->>O: "Create a VQE circuit for H2 molecule"
+    
+    Note over O,D: Designer Always Runs
     O->>D: Generate initial code
     D->>R: Retrieve VQE examples
     R-->>D: Relevant patterns and templates
     D-->>O: Initial code structure
-    O->>V: Validate generated code
-    V-->>O: Validation results
-    O->>Opt: Optimize circuit
-    Opt-->>O: Optimized code
-    O->>E: Generate explanations
-    E-->>O: Educational content
-    O-->>U: Complete response with code and explanations
+    
+    alt Validation Enabled
+        O->>V: Validate generated code
+        V-->>O: Validation results
+    end
+    
+    alt Optimization Enabled
+        O->>Opt: Optimize circuit
+        Opt-->>O: Optimized code
+    end
+    
+    Note over O,FV: Final Validator Always Runs
+    O->>FV: Final validation check
+    FV-->>O: Final validation results
+    
+    O-->>U: Complete response with code
 ```
 
-### Iterative Improvement Workflow
+### Iterative Optimization Workflow (With Loop)
 ```mermaid
 sequenceDiagram
     participant O as Orchestrator
     participant D as Designer
     participant V as Validator
     participant Opt as Optimizer
+    participant FV as Final Validator
     
     O->>D: Generate code
     D-->>O: Initial code
+    
     O->>V: Validate
     V-->>O: Issues found
-    O->>D: Fix issues
-    D-->>O: Updated code
-    O->>V: Re-validate
-    V-->>O: Validation passed
+    
     O->>Opt: Optimize
-    Opt-->>O: Final optimized code
+    Opt-->>O: Optimized code
+    
+    loop Optimization Loop (if needed)
+        O->>V: Re-validate optimized code
+        V-->>O: Validation feedback
+        O->>Opt: Re-optimize based on feedback
+        Opt-->>O: Improved code
+    end
+    
+    O->>FV: Final validation
+    FV-->>O: Final optimized code approved
+```
+
+### Educational Agent (Independent)
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant O as Orchestrator
+    participant E as Educational Agent
+    participant R as RAG System
+    
+    U->>O: Request with educational mode
+    
+    Note over E: Runs in parallel or on-demand
+    O->>E: Generate explanations for user prompt
+    E->>R: Retrieve educational content
+    R-->>E: Learning materials
+    E-->>O: Educational explanations
+    
+    O-->>U: Explanations focused on user's original prompt
 ```
 
 ## 🛠️ Agent Communication

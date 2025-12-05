@@ -21,23 +21,33 @@ The Cirq-RAG-Code-Assistant is a research-grade system designed to integrate wit
 
 ## 🏗️ System Architecture
 
-The system employs a hybrid **Retrieval-Augmented Generation (RAG) + Multi-Agent** architecture:
+The system employs a hybrid **Retrieval-Augmented Generation (RAG) + Multi-Agent** architecture with a **sequential pipeline**:
 
 ```mermaid
 graph TD
     A[User Input] --> B[RAG System]
     B --> C[Orchestration Layer]
-    C --> D[Designer Agent]
-    C --> E[Optimizer Agent]
-    C --> F[Validator Agent]
-    C --> G[Educational Agent]
-    D --> H[Generated Code]
-    E --> H
-    F --> I[Validation Results]
-    G --> J[Explanations]
-    H --> K[Final Output]
-    I --> K
-    J --> K
+    
+    subgraph "Main Pipeline"
+        C --> D[Designer Agent<br/>Always Runs]
+        D --> E{Validation?}
+        E -->|Yes| F[Validator Agent]
+        E -->|No| G{Optimization?}
+        F --> G
+        G -->|Yes| H[Optimizer Agent]
+        G -->|No| I[Final Validator<br/>Always Runs]
+        H -->|Loop| F
+        H --> I
+        I --> J[Generated Code]
+    end
+    
+    subgraph "Independent"
+        C -.->|Optional| K[Educational Agent]
+        K --> L[Explanations]
+    end
+    
+    J --> M[Final Output]
+    L -.-> M
 ```
 
 ## 🧠 Key Components
@@ -47,11 +57,12 @@ graph TD
 - **Vector Search**: Semantic similarity matching using sentence transformers
 - **Context Retrieval**: Relevant examples and patterns for code generation
 
-### 2. Multi-Agent System
-- **Designer Agent**: Generates initial Cirq code from natural language
-- **Optimizer Agent**: Improves circuit efficiency and reduces gate count
-- **Validator Agent**: Tests and validates generated code
-- **Educational Agent**: Provides explanations and learning materials
+### 2. Multi-Agent Pipeline
+- **Designer Agent** (Always): Generates initial Cirq code from natural language
+- **Validator Agent** (Conditional): Tests and validates generated code
+- **Optimizer Agent** (Conditional): Improves circuit efficiency, can loop with Validator
+- **Final Validator** (Always): Ensures final code quality before output
+- **Educational Agent** (Independent): Provides explanations focused on user's prompt
 
 ### 3. Tool Integration
 - **Compilation Tools**: Real-time Cirq code compilation
