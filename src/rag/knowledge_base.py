@@ -189,7 +189,21 @@ class KnowledgeBase:
             # Create text representation
             text_parts = []
             
-            # Add description if available
+            # Add task (natural language description) - primary search target
+            if "task" in entry:
+                text_parts.append(entry["task"])
+            
+            # Add topics as searchable text
+            if "topics" in entry and entry["topics"]:
+                topics_text = "Topics: " + ", ".join(entry["topics"])
+                text_parts.append(topics_text)
+            
+            # Add constraints if available
+            if "constraints" in entry and entry["constraints"]:
+                constraints_text = "Constraints: " + "; ".join(entry["constraints"])
+                text_parts.append(constraints_text)
+            
+            # Add description if available (fallback for other data formats)
             if "description" in entry:
                 text_parts.append(entry["description"])
             

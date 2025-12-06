@@ -9,8 +9,13 @@ Author: Umer Farooq, Hussain Waseem Syed, Muhammad Irtaza Khan
 Email: umerfarooqcs0891@gmail.com
 """
 
-# This file will export the main RAG system components
-from .retriever import Retriever
+# This file exports the main RAG system components
+from .retriever import (
+    Retriever,
+    extract_query_keywords,
+    compute_topic_boost,
+    DEFAULT_TOPIC_BOOST,
+)
 from .generator import Generator
 from .embeddings import EmbeddingModel
 from .vector_store import VectorStore
@@ -22,5 +27,7 @@ __all__ = [
     "EmbeddingModel",
     "VectorStore",
     "KnowledgeBase",
+    "extract_query_keywords",
+    "compute_topic_boost",
+    "DEFAULT_TOPIC_BOOST",
 ]
-
