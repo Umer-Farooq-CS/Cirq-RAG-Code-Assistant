@@ -263,6 +263,71 @@ cache:
   ttl: 3600
 ```
 
+## 🤖 Ollama Setup
+
+This project uses Ollama for local LLM inference. You must install Ollama and create the custom agent models.
+
+### Install Ollama
+
+**Windows/Mac/Linux:**
+Download from [ollama.ai](https://ollama.ai) or use:
+
+```bash
+# Linux
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Start Ollama service
+ollama serve
+```
+
+### Pull Base Models
+
+```bash
+# Pull the base models used by our agents
+ollama pull qwen2.5-coder:14b-instruct-q4_K_M
+ollama pull llama3.1:8b-instruct-q5_K_M
+```
+
+### Create Custom Agent Models
+
+From the project root directory:
+
+```bash
+# Create Designer Agent (code generation)
+cd config/ollama
+ollama create cirq-designer-agent -f designer_agent.Modelfile
+
+# Create Educational Agent (explanations)
+ollama create cirq-edu-agent -f educational_agent.Modelfile
+
+# Return to project root
+cd ../..
+```
+
+### Verify Agent Models
+
+```bash
+# List all models
+ollama list
+
+# Test Designer Agent
+ollama run cirq-designer-agent "Create a Bell state circuit"
+
+# Test Educational Agent  
+ollama run cirq-edu-agent "Explain superposition simply"
+```
+
+### Remove/Recreate Agent Models
+
+```bash
+# Remove an agent
+ollama rm cirq-designer-agent
+
+# Recreate after modifying Modelfile
+cd config/ollama
+ollama create cirq-designer-agent -f designer_agent.Modelfile
+```
+
 ## 🚀 First Run
 
 ### Initialize the System

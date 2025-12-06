@@ -53,6 +53,12 @@ Our system employs four specialized agents working in coordination:
 
 ```
 .
+├─ config/                                  # Configuration files
+│  ├─ config.json                          # Main configuration
+│  └─ ollama/                              # Ollama Modelfiles
+│     ├─ designer_agent.Modelfile          # Designer agent model
+│     └─ educational_agent.Modelfile       # Educational agent model
+│
 ├─ data/                                    # Data storage (git-ignored)
 │  ├─ datasets/                            # Training and evaluation datasets
 │  ├─ knowledge_base/                      # Curated Cirq code snippets
@@ -189,6 +195,60 @@ chmod +x setup-dev.sh
    LOG_LEVEL=INFO
    DATABASE_URL=sqlite:///data/cirq_rag.db
    ```
+
+### 🤖 Ollama Custom Models
+
+This project uses custom Ollama Modelfiles with optimized parameters for each agent. You must create these models before running the notebooks.
+
+#### Create Agent Models
+
+From the project root directory:
+
+```bash
+# Create Designer Agent (for code generation)
+cd config/ollama
+ollama create cirq-designer-agent -f designer_agent.Modelfile
+
+# Create Educational Agent (for explanations)
+ollama create cirq-edu-agent -f educational_agent.Modelfile
+
+# Return to project root
+cd ../..
+```
+
+#### Remove Agent Models
+
+```bash
+# Remove a specific agent model
+ollama rm cirq-designer-agent
+ollama rm cirq-edu-agent
+```
+
+#### List Available Models
+
+```bash
+# See all installed models
+ollama list
+```
+
+#### Test Agent Models
+
+```bash
+# Test Designer Agent (expects JSON output)
+ollama run cirq-designer-agent "Create a simple Bell state circuit"
+
+# Test Educational Agent (expects markdown output)
+ollama run cirq-edu-agent "Explain what a Hadamard gate does"
+```
+
+#### Modelfile Configuration
+
+The Modelfiles in `config/ollama/` contain:
+- **Base model** - The underlying LLM (e.g., `qwen2.5-coder:14b`)
+- **System prompt** - Agent-specific instructions and output format
+- **Parameters** - Temperature, context size, GPU layers, etc.
+
+See [config/README.md](config/README.md) for detailed Modelfile documentation.
 
 ## 🧪 Development
 
