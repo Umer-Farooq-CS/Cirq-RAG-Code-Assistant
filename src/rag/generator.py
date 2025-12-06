@@ -120,22 +120,22 @@ Generated code:"""
         
         Args:
             retriever: Retriever instance for context retrieval
-            model: LLM model name (defaults to config.models.llm.model)
-            provider: LLM provider ("openai", "anthropic", or "ollama"; defaults to config.models.llm.provider)
-            temperature: Generation temperature (defaults to config.models.llm.temperature or 0.2)
-            max_tokens: Maximum tokens to generate (defaults to config.models.llm.max_tokens or 2000)
+            model: LLM model name (defaults to config.agents.designer.model.model)
+            provider: LLM provider ("openai", "anthropic", or "ollama"; defaults to config.agents.designer.model.provider)
+            temperature: Generation temperature (defaults to config.agents.designer.model.temperature or 0.2)
+            max_tokens: Maximum tokens to generate (defaults to config.agents.designer.model.max_tokens or 2000)
         """
         self.retriever = retriever
 
         # Load defaults from configuration if not explicitly provided
         cfg = get_config()
-        llm_cfg = cfg.get("models", {}).get("llm", {})
-        model = model or llm_cfg.get("model", "gpt-4")
-        provider = (provider or llm_cfg.get("provider", "openai")).lower()
+        designer_cfg = cfg.get("agents", {}).get("designer", {}).get("model", {})
+        model = model or designer_cfg.get("model", "gpt-4")
+        provider = (provider or designer_cfg.get("provider", "openai")).lower()
         if temperature is None:
-            temperature = llm_cfg.get("temperature", 0.2)
+            temperature = designer_cfg.get("temperature", 0.2)
         if max_tokens is None:
-            max_tokens = llm_cfg.get("max_tokens", 2000)
+            max_tokens = designer_cfg.get("max_tokens", 2000)
 
         self.model = model
         self.provider = provider
@@ -236,33 +236,29 @@ Generated code:"""
                     **kwargs
                 )
                 generated_text = response.content[0].text
-            else:  # ollama
-                url = f"{self.ollama_base_url.rstrip('/')}/api/chat"
+            else:  # ollama - uses Modelfile's SYSTEM prompt
+                url = f"{self.ollama_base_url.rstrip('/')}/api/generate"
                 payload = {
                     "model": self.model,
-                    "messages": [
-                        {"role": "system", "content": "You are an expert Cirq quantum computing programmer."},
-                        {"role": "user", "content": prompt},
-                    ],
+                    "prompt": prompt,
                     "stream": False,
-                    "options": {
-                        "temperature": self.temperature,
-                        "num_predict": self.max_tokens,
-                    },
+                    "format": "json",  # Request JSON output
                 }
                 resp = requests.post(url, json=payload, timeout=kwargs.get("timeout", 300))
                 resp.raise_for_status()
                 data = resp.json()
-                generated_text = data.get("message", {}).get("content", "")
+                generated_text = data.get("response", "")
             
-            # Extract code from response
-            code = self._extract_code(generated_text)
+            # Extract code from response (handles both JSON and raw formats)
+            code, description = self._extract_code_from_response(generated_text)
             
             # Extract metadata
             metadata = self._extract_metadata(code, algorithm)
+            metadata["description"] = description
             
             result = {
                 "code": code,
+                "description": description,
                 "raw_response": generated_text,
                 "metadata": metadata,
                 "context_used": len(context_results),
@@ -276,9 +272,50 @@ Generated code:"""
             logger.error(f"Error generating code: {e}")
             raise
     
+    def _extract_code_from_response(self, text: str) -> tuple:
+        """
+        Extract code and description from LLM response.
+        
+        Handles JSON format from Modelfile: {"code": "...", "description": "..."}
+        Falls back to legacy extraction if JSON parsing fails.
+        
+        Args:
+            text: LLM response text
+            
+        Returns:
+            Tuple of (code, description)
+        """
+        import json
+        
+        # Try to parse as JSON first (from Modelfile format)
+        try:
+            # Handle potential JSON wrapped in markdown code blocks
+            clean_text = text.strip()
+            if clean_text.startswith("```json"):
+                clean_text = clean_text[7:]
+            if clean_text.startswith("```"):
+                clean_text = clean_text[3:]
+            if clean_text.endswith("```"):
+                clean_text = clean_text[:-3]
+            clean_text = clean_text.strip()
+            
+            data = json.loads(clean_text)
+            code = data.get("code", "")
+            description = data.get("description", "")
+            
+            if code:
+                logger.debug("Successfully extracted code from JSON response")
+                return code, description
+        except json.JSONDecodeError:
+            logger.debug("Response is not JSON, falling back to code extraction")
+        
+        # Fallback to legacy extraction
+        code = self._extract_code(text)
+        return code, ""
+    
     def _extract_code(self, text: str) -> str:
         """
-        Extract code block from LLM response.
+        Extract code block from LLM response (legacy method).
         
         Args:
             text: LLM response text
