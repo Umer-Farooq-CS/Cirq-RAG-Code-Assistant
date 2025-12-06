@@ -5,11 +5,6 @@
     "debug": false,
     "environment": "development"
   },
-  "api_keys": {
-    "openai_api_key": null,
-    "huggingface_api_key": null,
-    "anthropic_api_key": null
-  },
   "models": {
     "embedding": {
       "model_name": "BAAI/bge-base-en-v1.5",
@@ -17,12 +12,6 @@
       "device": "auto",
       "batch_size": 16,
       "cache_folder": ".cache/embeddings"
-    },
-    "llm": {
-      "provider": "ollama",
-      "model": "qwen2.5-coder:14b-instruct-q4_K_M",
-      "temperature": 0.2,
-      "max_tokens": 2000
     },
     "fine_tuning": {
       "use_fine_tuned_model": false,
@@ -55,7 +44,11 @@
     },
     "designer": {
       "enabled": true,
-      "use_rag": true
+      "use_rag": true,
+      "model": {
+        "provider": "ollama",
+        "model": "cirq-designer-agent"
+      }
     },
     "optimizer": {
       "enabled": true,
@@ -66,15 +59,28 @@
         "two_qubit_gates": -0.3,
         "fidelity": 0.4
       },
-      "rl_iterations": 10
+      "rl_iterations": 10,
+      "model": {
+        "provider": "ollama",
+        "model": "qwen2.5-coder:14b-instruct-q4_K_M",
+        "temperature": 0.2,
+        "max_tokens": 2000
+      }
     },
     "validator": {
       "enabled": true,
-      "validation_level": "comprehensive"
+      "validation_level": "comprehensive",
+      "model": {
+        "provider": "huggingface",
+        "model": "microsoft/codebert-base"
+      }
     },
     "educational": {
       "enabled": true,
-      "explanation_depth": "intermediate"
+      "model": {
+        "provider": "ollama",
+        "model": "cirq-edu-agent"
+      }
     }
   },
   "tools": {
