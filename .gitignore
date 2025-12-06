@@ -38,8 +38,6 @@ ENV/
 *.ipynb_checkpoints/
 
 # Data and outputs
-data/
-outputs/
 .cache/
 repos/
 

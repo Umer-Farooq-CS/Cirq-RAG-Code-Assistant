@@ -98,14 +98,6 @@ class ConfigLoader:
     
     def _apply_env_overrides(self) -> None:
         """Apply environment variable overrides to config."""
-        # API Keys
-        if os.getenv("OPENAI_API_KEY"):
-            self.config["api_keys"]["openai_api_key"] = os.getenv("OPENAI_API_KEY")
-        if os.getenv("HUGGINGFACE_API_KEY"):
-            self.config["api_keys"]["huggingface_api_key"] = os.getenv("HUGGINGFACE_API_KEY")
-        if os.getenv("ANTHROPIC_API_KEY"):
-            self.config["api_keys"]["anthropic_api_key"] = os.getenv("ANTHROPIC_API_KEY")
-        
         # Environment
         if os.getenv("ENVIRONMENT"):
             self.config["app"]["environment"] = os.getenv("ENVIRONMENT")
@@ -115,6 +107,12 @@ class ConfigLoader:
         # Logging
         if os.getenv("LOG_LEVEL"):
             self.config["logging"]["log_level"] = os.getenv("LOG_LEVEL")
+
+        # Models (LLM)
+        if os.getenv("LLM_PROVIDER"):
+            self.config.setdefault("models", {}).setdefault("llm", {})["provider"] = os.getenv("LLM_PROVIDER")
+        if os.getenv("LLM_MODEL"):
+            self.config.setdefault("models", {}).setdefault("llm", {})["model"] = os.getenv("LLM_MODEL")
     
     def _get_default_config(self) -> Dict[str, Any]:
         """Get default configuration."""
@@ -125,7 +123,6 @@ class ConfigLoader:
                 "debug": False,
                 "environment": "development"
             },
-            "api_keys": {},
             "models": {
                 "embedding": {
                     "model_name": "BAAI/bge-base-en-v1.5",
