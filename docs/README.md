@@ -14,6 +14,10 @@ Welcome to the comprehensive documentation for the Cirq-RAG-Code-Assistant proje
   
 - [**Proposal/**](Proposal/) - Research proposal and LaTeX files
   - Academic research proposal and supporting materials
+  
+- [**Research Paper/**](Research%20Paper/) - Final research paper
+  - Complete Springer LNCS format paper with methodology, results, and analysis
+  - LaTeX source files, figures, and bibliography
 
 ### 📄 Core Documentation Files
 
@@ -23,6 +27,8 @@ Welcome to the comprehensive documentation for the Cirq-RAG-Code-Assistant proje
 - [**Project Overview**](overview.md) - High-level project description and goals
 - [**Quick Start**](quickstart.md) - Get up and running in minutes
 - [**Technology Stack**](tech-stack.md) - Complete technology overview and dependencies
+- [**Research Paper**](Research%20Paper/LaTeX%20Files/main.tex) - Final research paper (Springer LNCS format)
+- [**Evaluation Rubric**](rubric.md) - Project evaluation criteria and assessment
 
 ## 🚀 Quick Navigation
 
@@ -37,7 +43,9 @@ Welcome to the comprehensive documentation for the Cirq-RAG-Code-Assistant proje
 - **API integration?** Check [API Reference](api/README.md)
 
 ### For Researchers
+- **Research paper?** See [Final Research Paper](Research%20Paper/LaTeX%20Files/main.tex) (Springer LNCS format)
 - **Research proposal?** See [Proposal Documentation](Proposal/Project%20Proposal.pdf)
+- **Evaluation results?** Check [Evaluation Rubric](rubric.md) and paper results section
 - **Technology details?** Review [Technology Stack](tech-stack.md)
 - **Future enhancements?** Read [QCanvas Integration](integration.md)
 

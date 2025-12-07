@@ -12,10 +12,11 @@ Email: umerfarooqcs0891@gmail.com
 from .compiler import CirqCompiler
 from .simulator import QuantumSimulator
 from .analyzer import CircuitAnalyzer
+from .qcanvas_client import QCanvasClient
 
 __all__ = [
     "CirqCompiler",
     "QuantumSimulator",
     "CircuitAnalyzer",
+    "QCanvasClient",
 ]
-

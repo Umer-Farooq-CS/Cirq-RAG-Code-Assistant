@@ -109,7 +109,7 @@ Generated code:"""
 
     def __init__(
         self,
-        retriever: Retriever,
+        retriever: Optional[Retriever] = None,
         model: Optional[str] = None,
         provider: Optional[str] = None,
         temperature: Optional[float] = None,
@@ -119,7 +119,7 @@ Generated code:"""
         Initialize the Generator.
         
         Args:
-            retriever: Retriever instance for context retrieval
+            retriever: Retriever instance for context retrieval (optional if only using direct generation)
             model: LLM model name (defaults to config.agents.designer.model.model)
             provider: LLM provider ("openai", "anthropic", or "ollama"; defaults to config.agents.designer.model.provider)
             temperature: Generation temperature (defaults to config.agents.designer.model.temperature or 0.2)
@@ -189,25 +189,47 @@ Generated code:"""
             Dictionary with generated code, metadata, and confidence
         """
         # Retrieve relevant context
-        logger.info(f"Retrieving context for query: {query[:50]}...")
-        context_results = self.retriever.retrieve(
-            query=query,
-            top_k=top_k,
-            algorithm=algorithm,
-        )
+        if self.retriever:
+            logger.info(f"Retrieving context for query: {query[:50]}...")
+            context_results = self.retriever.retrieve(
+                query=query,
+                top_k=top_k,
+                algorithm=algorithm,
+            )
+            
+            # Format context
+            context = self.retriever.retrieve_context(
+                query=query,
+                top_k=top_k,
+                algorithm=algorithm,
+            )
+        else:
+            logger.info("No retriever provided, skipping context retrieval")
+            context_results = []
+            context = ""
         
-        # Format context
-        context = self.retriever.retrieve_context(
-            query=query,
-            top_k=top_k,
-            algorithm=algorithm,
-        )
+        # Build prompt with algorithm-specific constraints
+        algorithm_constraints = ""
+        if algorithm and algorithm.lower() == "qaoa":
+            algorithm_constraints = """
+
+CRITICAL CONSTRAINTS FOR QAOA:
+- NEVER import or use cirq.contrib.qaoa - this module does NOT exist in modern Cirq
+- Build QAOA circuits manually using cirq.ZZ gates for the problem Hamiltonian
+- Use cirq.rx rotations for the mixer Hamiltonian
+- Use np.pi in ZZ exponents for correct phase: cirq.ZZ(qubits[u], qubits[v]) ** (-2 * gamma / np.pi)
+- Always create a circuit variable that can be executed and measured
+"""
         
         # Build prompt
         prompt = self.PROMPT_TEMPLATE.format(
             context=context if context else "No relevant examples found.",
             query=query,
         )
+        
+        # Add algorithm-specific constraints if any
+        if algorithm_constraints:
+            prompt = prompt + algorithm_constraints
         
         # Generate code using LLM
         logger.info(f"Generating code using {self.provider}/{self.model}")
@@ -411,19 +433,23 @@ Generated code:"""
         Returns:
             Dictionary with full_prompt, context, and context_results
         """
-        # Retrieve relevant context
-        context_results = self.retriever.retrieve(
-            query=query,
-            top_k=top_k,
-            algorithm=algorithm,
-        )
-        
-        # Format context
-        context = self.retriever.retrieve_context(
-            query=query,
-            top_k=top_k,
-            algorithm=algorithm,
-        )
+        if self.retriever:
+            # Retrieve relevant context
+            context_results = self.retriever.retrieve(
+                query=query,
+                top_k=top_k,
+                algorithm=algorithm,
+            )
+            
+            # Format context
+            context = self.retriever.retrieve_context(
+                query=query,
+                top_k=top_k,
+                algorithm=algorithm,
+            )
+        else:
+            context_results = []
+            context = ""
         
         # Build prompt
         full_prompt = self.PROMPT_TEMPLATE.format(
@@ -516,14 +542,15 @@ Generated code:"""
                 data = resp.json()
                 generated_text = data.get("message", {}).get("content", "")
             
-            # Extract code from response
-            code = self._extract_code(generated_text)
+            # Extract code from response (handles both JSON and raw formats)
+            code, description = self._extract_code_from_response(generated_text)
             
             # Extract metadata
             metadata = self._extract_metadata(code, None)
             
             result = {
                 "code": code,
+                "description": description,
                 "raw_response": generated_text,
                 "metadata": metadata,
                 "context_used": 0,  # No RAG context used

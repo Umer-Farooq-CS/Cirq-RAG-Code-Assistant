@@ -62,18 +62,26 @@
       "rl_iterations": 10,
       "model": {
         "provider": "ollama",
-        "model": "qwen2.5-coder:14b-instruct-q4_K_M",
+        "model": "cirq-optimizer-agent",
         "temperature": 0.2,
         "max_tokens": 2000
       }
     },
     "validator": {
       "enabled": true,
+      "mode": "local",
       "validation_level": "comprehensive",
+      "llm_enabled": true,
+      "default_shots": 1024,
+      "default_backend": "cirq",
       "model": {
-        "provider": "huggingface",
-        "model": "microsoft/codebert-base"
+        "provider": "ollama",
+        "model": "cirq-validator-agent"
       }
+    },
+    "qcanvas": {
+      "backend_url": "http://localhost:8000",
+      "timeout_seconds": 30
     },
     "educational": {
       "enabled": true,

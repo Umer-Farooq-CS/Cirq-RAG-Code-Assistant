@@ -96,7 +96,7 @@ class QuantumSimulator:
             noise_model: Optional noise model
             
         Returns:
-            Dictionary with simulation results
+            Dictionary with simulation results including histogram
         """
         if not CIRQ_AVAILABLE:
             raise ImportError("Cirq is required")
@@ -107,6 +107,7 @@ class QuantumSimulator:
         result = {
             "success": False,
             "measurements": None,
+            "histogram": None,
             "state_vector": None,
             "execution_time": None,
             "error": None,
@@ -122,7 +123,29 @@ class QuantumSimulator:
             # Run simulation
             if repetitions > 0:
                 # Run with measurements
-                result["measurements"] = self.simulator.run(circuit, repetitions=repetitions)
+                cirq_result = self.simulator.run(circuit, repetitions=repetitions)
+                result["measurements"] = cirq_result
+                
+                # Extract histogram from Cirq Result object
+                # Convert to counts dictionary format: {"00": 512, "11": 512, ...}
+                if cirq_result:
+                    histogram = {}
+                    # Get the first measurement key (usually 'm', 'result', etc.)
+                    measurement_keys = list(cirq_result.measurements.keys())
+                    
+                    if measurement_keys:
+                        key = measurement_keys[0]
+                        measurements = cirq_result.measurements[key]
+                        
+                        # Convert each measurement to binary string and count
+                        for measurement in measurements:
+                            # Convert measurement array to binary string (e.g., [0, 1] -> "01")
+                            bitstring = ''.join(str(int(bit)) for bit in measurement)
+                            histogram[bitstring] = histogram.get(bitstring, 0) + 1
+                        
+                        result["histogram"] = histogram
+                        logger.info(f"Simulation completed. Histogram: {histogram}")
+                    
             else:
                 # Get state vector
                 result["state_vector"] = self.simulator.simulate(circuit).final_state_vector
