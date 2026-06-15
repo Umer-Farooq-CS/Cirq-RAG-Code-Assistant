@@ -23,7 +23,8 @@ Welcome to the comprehensive documentation for the Cirq-RAG-Code-Assistant proje
 
 - [**Architecture Guide**](architecture.md) - System design and component relationships
 - [**Installation Guide**](installation.md) - Setup and installation instructions
-- [**QCanvas Integration Guide**](integration.md) - How to integrate with QCanvas quantum simulator (future enhancement)
+- [**QCanvas Integration Guide**](integration.md) - How to integrate with QCanvas quantum simulator
+- [**AWS Cloud Deployment Guide**](deployment-aws.md) - Production deployment walkthrough on AWS ECS Fargate, RDS, and Redis
 - [**Project Overview**](overview.md) - High-level project description and goals
 - [**Quick Start**](quickstart.md) - Get up and running in minutes
 - [**Technology Stack**](tech-stack.md) - Complete technology overview and dependencies
@@ -47,7 +48,8 @@ Welcome to the comprehensive documentation for the Cirq-RAG-Code-Assistant proje
 - **Research proposal?** See [Proposal Documentation](Proposal/Project%20Proposal.pdf)
 - **Evaluation results?** Check [Evaluation Rubric](rubric.md) and paper results section
 - **Technology details?** Review [Technology Stack](tech-stack.md)
-- **Future enhancements?** Read [QCanvas Integration](integration.md)
+- **QCanvas integration?** Read [QCanvas Integration](integration.md)
+- **Cloud deployment?** Read [AWS Cloud Deployment Guide](deployment-aws.md)
 
 ## 📖 Additional Resources
 

@@ -23,4 +23,6 @@ Educational Agent: Independent, runs in parallel when requested
 - **Educational Agent**: Independent, focused on user prompt explanations
 
 Future enhancement (post-project):
-- QCanvas integration for real-time circuit visualization and execution
+- Scale knowledge base to 2,500+ entries
+- Enable RL-based optimization in production experiments
+- User studies for educational effectiveness evaluation

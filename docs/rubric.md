@@ -38,7 +38,7 @@
 - **Innovative Methodology:** Hybrid RAG + Multi-Agent pipeline with Designer, Optimizer, Validator (with self-correction + RAG-based semantic validation), and Educational agents matched to the configuration and implementation.
 - **Complete Evaluation Pipeline:** Benchmark suite (`BenchmarkSuite` + `MetricsCollector`), ablation modes, and empirical results are implemented and plotted; these are now fully reflected in `docs/Research Paper/LaTeX Files/main.tex`.
 - **Deployment Readiness:** A working `Dockerfile` is present at the project root for containerized setup, alongside `requirements.txt` and setup scripts, matching the “deployment/containerization” rubric line.
-- **Documentation Quality:** Memory bank, architecture docs, API docs, and the research paper are consistent with the actual code (or clearly marked as future work in the case of QCanvas).
+- **Documentation Quality:** Memory bank, architecture docs, API docs, and the research paper are consistent with the actual code.
 
 **Remaining Limitations / Caveats:**
 - **Human Study Missing:** The evaluation focuses on automated metrics (success/validation rate, depth, gates, latency, quality); there is no user study on educational effectiveness or usability.

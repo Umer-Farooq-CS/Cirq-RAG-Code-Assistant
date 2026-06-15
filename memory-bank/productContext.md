@@ -22,5 +22,5 @@ Users can configure:
 - Educational explanations enabled/disabled (independent Educational Agent)
 
 Future enhancement (post-project):
-- QCanvas users integrating with existing quantum simulator
-- Real-time integration with QCanvas for circuit visualization
+- User studies for educational effectiveness evaluation
+- Scaling the curated knowledge base to 2,500+ entries

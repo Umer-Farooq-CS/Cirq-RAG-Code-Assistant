@@ -26,5 +26,4 @@
 - Agent pipeline order must be maintained
 
 Future enhancement (post-project):
-- FastAPI for QCanvas integration
-- QCanvas integration requirements
+- Multi-framework support extensions (Qiskit, PennyLane)

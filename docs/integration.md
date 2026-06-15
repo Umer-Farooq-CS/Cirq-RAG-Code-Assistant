@@ -2,9 +2,7 @@
 
 ## 🎯 Overview
 
-**Note: This is a future enhancement that will be implemented after the core research project is completed.**
-
-This guide explains how to integrate the Cirq-RAG-Code-Assistant with your existing QCanvas quantum simulator for real-time circuit visualization and execution. This integration is planned as an additional feature to be developed after the main research objectives are achieved.
+This guide explains how to integrate and use the Cirq-RAG-Code-Assistant with your QCanvas quantum simulator for real-time circuit visualization and execution.
 
 ## 🏗️ Integration Architecture
 

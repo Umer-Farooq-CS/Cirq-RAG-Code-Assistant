@@ -23,6 +23,8 @@ The Cirq-RAG-Code-Assistant is a cutting-edge research project that combines **R
 - **🔧 Tool-Augmented Reasoning** - Uses compile/simulate loops for code validation
 - **🤖 Agentic Reinforcement Learning** - Iterative refinement using RL techniques
 - **📊 Comprehensive Evaluation** - Rigorous testing and benchmarking framework
+- **🎨 QCanvas Integration** - Real-time circuit visualization and execution with QCanvas quantum simulator
+- **☁️ AWS Cloud Deployment** - Production-ready deployment on AWS ECS Fargate, RDS Postgres (pgvector), ElastiCache Redis, and AWS Bedrock
 
 ### 🏗️ System Architecture
 
@@ -78,6 +80,7 @@ Our system employs four specialized agents working in coordination:
 │  │     ├─ references.bib                 # Bibliography
 │  │     └─ figs/                          # Figures and visualizations
 │  ├─ architecture.md                      # System architecture
+│  ├─ deployment-aws.md                    # AWS ECS Fargate deployment guide
 │  ├─ installation.md                      # Setup instructions
 │  ├─ integration.md                       # QCanvas integration guide
 │  ├─ overview.md                          # Project overview
@@ -319,6 +322,8 @@ safety check
 3. **Performance Optimization** - ✅ 33% reduction in gate count, 38% reduction in two-qubit gates
 4. **Validation & Testing** - ✅ 90% validation rate with self-correction loops
 5. **Reproducible Evaluation** - ✅ Complete benchmark suite with ablation studies
+6. **QCanvas Simulator Integration** - ✅ Real-time circuit visualization, metrics, and simulation results
+7. **Production Cloud Deployment** - ✅ Containerized deployment on AWS ECS Fargate with RDS (pgvector) and Redis cache
 
 ### Research Paper
 
@@ -356,10 +361,8 @@ See the `Dockerfile` for details on the containerization setup.
 
 - **Knowledge Base Scaling** - Expand from 140+ to 2,500+ curated entries
 - **RL Optimization** - Production deployment of reinforcement learning-based optimization
-- **QCanvas Integration** - Real-time circuit visualization and hardware-aware optimization
 - **User Studies** - Educational effectiveness evaluation with human participants
 - **Multi-Framework Support** - Extend to Qiskit, PennyLane, and other frameworks
-- **Cloud Deployment** - Scalable cloud-based quantum computing assistance
 
 ## 📚 Documentation
 
@@ -367,6 +370,8 @@ See the `Dockerfile` for details on the containerization setup.
 - **[Architecture Guide](docs/architecture.md)** - System design and components
 - **[Installation Guide](docs/installation.md)** - Comprehensive setup instructions
 - **[Quick Start](docs/quickstart.md)** - Get up and running quickly
+- **[QCanvas Integration Guide](docs/integration.md)** - Integration with QCanvas quantum simulator
+- **[AWS Cloud Deployment Guide](docs/deployment-aws.md)** - AWS ECS Fargate, RDS (pgvector), and Redis deployment guide
 - **[Technology Stack](docs/tech-stack.md)** - Complete technology overview
 - **[API Documentation](docs/api/README.md)** - REST API reference
 - **[Agent Documentation](docs/agents/README.md)** - Multi-agent system details

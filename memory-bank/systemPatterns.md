@@ -21,4 +21,4 @@
 - Evaluation: syntax correctness, execution success, educational ratings
 
 Future enhancement (post-project):
-- QCanvas integration: real-time circuit visualization and execution
+- Multi-framework support (Qiskit, PennyLane)
